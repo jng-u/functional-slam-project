@@ -1,0 +1,18 @@
+{
+	servers {
+		timeouts {
+			read_header 10s
+			read_body 15s
+		}
+	}
+}
+
+{$LUNA_API_DOMAIN} {
+	@api path /api/query /api/usage /healthz
+	handle @api {
+		reverse_proxy api:11017
+	}
+	handle {
+		respond 404
+	}
+}

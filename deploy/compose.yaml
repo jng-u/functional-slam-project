@@ -1,0 +1,42 @@
+name: functional-slam-api
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Set OPENAI_API_KEY}
+      LUNA_CORS_ORIGIN: ${LUNA_CORS_ORIGIN:?Set LUNA_CORS_ORIGIN}
+    volumes:
+      - luna-quota:/var/lib/functional-slam
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:11017/healthz', timeout=2).close()"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      LUNA_API_DOMAIN: ${LUNA_API_DOMAIN:?Set LUNA_API_DOMAIN}
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    restart: unless-stopped
+
+volumes:
+  luna-quota:
+  caddy-data:
+  caddy-config:
