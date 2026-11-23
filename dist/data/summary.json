@@ -1,0 +1,2185 @@
+{
+  "dataset": "0kitchen/video0",
+  "frames": 101,
+  "keyframes": 41,
+  "llm": {
+    "model": "gpt-6-luna",
+    "endpoint": "api.openai.com",
+    "substitute": true,
+    "reasoning_effort": "low",
+    "cache_mode": "cold"
+  },
+  "llm_cache": "Started empty. Matching prompts within this run can reuse its earlier responses.",
+  "wall_seconds": 883.3142895363271,
+  "fps": 0.11434208774434898,
+  "gpu": "NVIDIA GeForce RTX 4070 Ti",
+  "timing_note": "Includes per-frame mask rendering and output. Includes live model requests, starting with an empty local response cache.",
+  "sam3": {
+    "resolution": 1008,
+    "frames_with_detections": 96,
+    "detections": 1373,
+    "labels": {
+      "handle": 298,
+      "door": 148,
+      "knob": 133,
+      "bottle": 129,
+      "cap": 128,
+      "drawer": 84,
+      "button": 84,
+      "jar": 59,
+      "lid": 59,
+      "control panel": 54,
+      "kettle": 52,
+      "oven": 25,
+      "electric outlet": 22,
+      "sink": 18,
+      "faucet": 17,
+      "microwave": 17,
+      "drain": 15,
+      "exhaust hood": 9,
+      "rice cooker": 7,
+      "toaster": 6,
+      "dishwasher": 4,
+      "switch": 2,
+      "ceiling light": 1,
+      "refrigerator": 1,
+      "switch panel": 1
+    },
+    "by_frame": [
+      {
+        "door": 1,
+        "handle": 1
+      },
+      {
+        "door": 2,
+        "drain": 1,
+        "bottle": 1,
+        "jar": 3,
+        "faucet": 1,
+        "sink": 1,
+        "handle": 2,
+        "lid": 3,
+        "cap": 1
+      },
+      {
+        "door": 2,
+        "drain": 1,
+        "bottle": 1,
+        "faucet": 1,
+        "jar": 3,
+        "sink": 1,
+        "handle": 2,
+        "lid": 3,
+        "cap": 1
+      },
+      {
+        "door": 4,
+        "drain": 1,
+        "jar": 3,
+        "faucet": 1,
+        "rice cooker": 1,
+        "sink": 1,
+        "handle": 4,
+        "lid": 3
+      },
+      {
+        "drawer": 1,
+        "door": 4,
+        "drain": 1,
+        "jar": 3,
+        "faucet": 1,
+        "sink": 1,
+        "rice cooker": 1,
+        "handle": 5,
+        "lid": 3
+      },
+      {
+        "drawer": 2,
+        "door": 7,
+        "drain": 1,
+        "jar": 3,
+        "faucet": 1,
+        "sink": 1,
+        "handle": 8,
+        "lid": 3
+      },
+      {
+        "drawer": 3,
+        "door": 9,
+        "drain": 1,
+        "control panel": 1,
+        "jar": 1,
+        "bottle": 5,
+        "oven": 1,
+        "sink": 1,
+        "faucet": 1,
+        "rice cooker": 1,
+        "handle": 13,
+        "knob": 4,
+        "lid": 1,
+        "cap": 5
+      },
+      {
+        "drawer": 4,
+        "door": 6,
+        "drain": 1,
+        "control panel": 2,
+        "faucet": 1,
+        "oven": 1,
+        "rice cooker": 1,
+        "sink": 1,
+        "handle": 11,
+        "knob": 3
+      },
+      {
+        "drawer": 5,
+        "door": 4,
+        "control panel": 3,
+        "microwave": 1,
+        "kettle": 2,
+        "oven": 1,
+        "bottle": 1,
+        "exhaust hood": 1,
+        "dishwasher": 1,
+        "toaster": 1,
+        "handle": 12,
+        "knob": 2,
+        "cap": 1
+      },
+      {
+        "drawer": 3,
+        "door": 2,
+        "control panel": 1,
+        "microwave": 1,
+        "exhaust hood": 1,
+        "kettle": 2,
+        "oven": 1,
+        "bottle": 1,
+        "handle": 7,
+        "knob": 2,
+        "cap": 1
+      },
+      {
+        "drawer": 2,
+        "door": 1,
+        "microwave": 1,
+        "exhaust hood": 1,
+        "kettle": 2,
+        "oven": 1,
+        "electric outlet": 1,
+        "bottle": 1,
+        "handle": 6,
+        "knob": 2,
+        "cap": 1
+      },
+      {
+        "drawer": 2,
+        "door": 1,
+        "microwave": 1,
+        "kettle": 1,
+        "handle": 4,
+        "knob": 2
+      },
+      {
+        "door": 1,
+        "exhaust hood": 1,
+        "handle": 1
+      },
+      {
+        "door": 1,
+        "exhaust hood": 1,
+        "handle": 1
+      },
+      {
+        "ceiling light": 1
+      },
+      {
+        "door": 5,
+        "handle": 5
+      },
+      {
+        "door": 6,
+        "jar": 2,
+        "faucet": 1,
+        "rice cooker": 1,
+        "handle": 6,
+        "lid": 2
+      },
+      {
+        "drawer": 2,
+        "door": 8,
+        "drain": 1,
+        "jar": 5,
+        "oven": 1,
+        "faucet": 1,
+        "sink": 1,
+        "bottle": 2,
+        "rice cooker": 1,
+        "handle": 10,
+        "knob": 1,
+        "lid": 5,
+        "cap": 2
+      },
+      {
+        "drawer": 4,
+        "door": 9,
+        "jar": 1,
+        "bottle": 6,
+        "faucet": 1,
+        "oven": 1,
+        "sink": 1,
+        "refrigerator": 1,
+        "handle": 13,
+        "knob": 1,
+        "lid": 1,
+        "cap": 6
+      },
+      {
+        "drawer": 3,
+        "door": 4,
+        "control panel": 2,
+        "microwave": 1,
+        "bottle": 7,
+        "oven": 1,
+        "rice cooker": 1,
+        "handle": 9,
+        "button": 2,
+        "knob": 5,
+        "cap": 7
+      },
+      {
+        "drawer": 3,
+        "door": 5,
+        "control panel": 3,
+        "microwave": 1,
+        "bottle": 1,
+        "kettle": 1,
+        "oven": 1,
+        "dishwasher": 1,
+        "handle": 8,
+        "button": 2,
+        "knob": 5,
+        "cap": 1
+      },
+      {
+        "control panel": 2,
+        "microwave": 1,
+        "bottle": 1,
+        "kettle": 1,
+        "electric outlet": 1,
+        "handle": 2,
+        "button": 2,
+        "knob": 2,
+        "cap": 1
+      },
+      {
+        "bottle": 1,
+        "cap": 1
+      },
+      {
+        "bottle": 1,
+        "cap": 1
+      },
+      {
+        "bottle": 1,
+        "cap": 1
+      },
+      {
+        "control panel": 1,
+        "bottle": 1,
+        "cap": 1,
+        "button": 5
+      },
+      {
+        "bottle": 1,
+        "electric outlet": 1,
+        "cap": 1
+      },
+      {
+        "bottle": 1,
+        "electric outlet": 1,
+        "cap": 1
+      },
+      {
+        "bottle": 1,
+        "electric outlet": 1,
+        "cap": 1
+      },
+      {
+        "bottle": 1,
+        "electric outlet": 1,
+        "cap": 1
+      },
+      {
+        "control panel": 1,
+        "door": 1,
+        "electric outlet": 1,
+        "bottle": 1,
+        "handle": 1,
+        "button": 4,
+        "cap": 1
+      },
+      {
+        "control panel": 1,
+        "electric outlet": 1,
+        "kettle": 1,
+        "handle": 1
+      },
+      {
+        "control panel": 2,
+        "microwave": 1,
+        "kettle": 2,
+        "bottle": 1,
+        "handle": 3,
+        "button": 13,
+        "knob": 2,
+        "cap": 1
+      },
+      {
+        "door": 1,
+        "control panel": 1,
+        "microwave": 1,
+        "bottle": 1,
+        "kettle": 2,
+        "handle": 3,
+        "knob": 2,
+        "cap": 1
+      },
+      {
+        "door": 1,
+        "kettle": 1,
+        "handle": 2
+      },
+      {
+        "kettle": 1,
+        "handle": 1
+      },
+      {
+        "door": 1,
+        "kettle": 1,
+        "handle": 1
+      },
+      {
+        "door": 1,
+        "bottle": 1,
+        "kettle": 1,
+        "electric outlet": 1,
+        "handle": 2,
+        "cap": 1
+      },
+      {
+        "kettle": 1,
+        "handle": 1
+      },
+      {
+        "kettle": 1,
+        "handle": 1
+      },
+      {
+        "kettle": 1,
+        "handle": 1
+      },
+      {
+        "kettle": 1,
+        "handle": 1
+      },
+      {
+        "kettle": 1,
+        "handle": 1
+      },
+      {
+        "kettle": 1,
+        "handle": 1
+      },
+      {
+        "kettle": 1,
+        "handle": 1
+      },
+      {
+        "bottle": 1,
+        "kettle": 2,
+        "electric outlet": 1,
+        "handle": 2,
+        "switch": 1,
+        "cap": 1
+      },
+      {
+        "door": 1,
+        "control panel": 1,
+        "bottle": 1,
+        "kettle": 2,
+        "handle": 3,
+        "button": 7,
+        "cap": 1
+      },
+      {
+        "control panel": 1,
+        "kettle": 2,
+        "bottle": 1,
+        "handle": 2,
+        "button": 7,
+        "cap": 1
+      },
+      {
+        "control panel": 1,
+        "bottle": 1,
+        "kettle": 2,
+        "handle": 2,
+        "button": 7,
+        "cap": 1
+      },
+      {
+        "bottle": 1,
+        "electric outlet": 1,
+        "kettle": 2,
+        "handle": 1,
+        "cap": 1
+      },
+      {
+        "bottle": 1,
+        "kettle": 2,
+        "electric outlet": 1,
+        "handle": 2,
+        "cap": 1
+      },
+      {
+        "drawer": 3,
+        "door": 2,
+        "control panel": 2,
+        "bottle": 1,
+        "microwave": 1,
+        "kettle": 2,
+        "handle": 6,
+        "button": 2,
+        "knob": 2,
+        "cap": 1
+      },
+      {
+        "drawer": 3,
+        "control panel": 3,
+        "door": 2,
+        "microwave": 1,
+        "kettle": 2,
+        "dishwasher": 1,
+        "oven": 1,
+        "handle": 6,
+        "knob": 4
+      },
+      {
+        "drawer": 3,
+        "control panel": 2,
+        "door": 2,
+        "microwave": 1,
+        "kettle": 2,
+        "dishwasher": 1,
+        "handle": 6,
+        "knob": 3
+      },
+      {
+        "door": 3,
+        "control panel": 2,
+        "microwave": 1,
+        "kettle": 1,
+        "handle": 4,
+        "button": 13,
+        "knob": 2
+      },
+      {
+        "control panel": 2,
+        "door": 1,
+        "microwave": 1,
+        "kettle": 2,
+        "handle": 3,
+        "button": 11,
+        "knob": 2
+      },
+      {
+        "control panel": 2,
+        "door": 1,
+        "bottle": 1,
+        "microwave": 1,
+        "kettle": 2,
+        "handle": 3,
+        "knob": 2,
+        "cap": 1
+      },
+      {
+        "control panel": 1,
+        "door": 2,
+        "microwave": 1,
+        "bottle": 1,
+        "kettle": 2,
+        "handle": 4,
+        "knob": 2,
+        "cap": 1
+      },
+      {
+        "control panel": 1,
+        "door": 1,
+        "kettle": 2,
+        "handle": 3,
+        "knob": 2
+      },
+      {},
+      {},
+      {},
+      {},
+      {},
+      {
+        "door": 1,
+        "handle": 1
+      },
+      {
+        "door": 1,
+        "handle": 1
+      },
+      {
+        "door": 1,
+        "bottle": 5,
+        "handle": 1,
+        "cap": 5
+      },
+      {
+        "exhaust hood": 1,
+        "bottle": 5,
+        "button": 2,
+        "cap": 5
+      },
+      {
+        "exhaust hood": 1,
+        "bottle": 3,
+        "button": 2,
+        "cap": 3
+      },
+      {
+        "bottle": 8,
+        "exhaust hood": 1,
+        "electric outlet": 1,
+        "jar": 1,
+        "knob": 2,
+        "lid": 1,
+        "cap": 8
+      },
+      {
+        "drawer": 3,
+        "door": 2,
+        "control panel": 1,
+        "bottle": 5,
+        "electric outlet": 1,
+        "jar": 2,
+        "handle": 5,
+        "button": 2,
+        "knob": 4,
+        "lid": 2,
+        "cap": 5
+      },
+      {
+        "drawer": 3,
+        "control panel": 2,
+        "door": 2,
+        "bottle": 5,
+        "oven": 1,
+        "jar": 1,
+        "handle": 5,
+        "button": 3,
+        "knob": 6,
+        "lid": 1,
+        "cap": 5
+      },
+      {
+        "drawer": 5,
+        "control panel": 1,
+        "bottle": 5,
+        "oven": 1,
+        "jar": 3,
+        "handle": 6,
+        "knob": 5,
+        "lid": 3,
+        "cap": 5
+      },
+      {
+        "drawer": 3,
+        "control panel": 1,
+        "bottle": 6,
+        "oven": 1,
+        "jar": 4,
+        "handle": 4,
+        "knob": 5,
+        "lid": 4,
+        "cap": 6
+      },
+      {
+        "drawer": 3,
+        "control panel": 1,
+        "bottle": 6,
+        "oven": 1,
+        "jar": 3,
+        "handle": 4,
+        "knob": 5,
+        "lid": 3,
+        "cap": 6
+      },
+      {
+        "drawer": 2,
+        "control panel": 1,
+        "bottle": 6,
+        "oven": 1,
+        "handle": 3,
+        "knob": 5,
+        "cap": 5
+      },
+      {
+        "drawer": 2,
+        "control panel": 1,
+        "door": 2,
+        "bottle": 6,
+        "oven": 1,
+        "jar": 4,
+        "handle": 5,
+        "knob": 5,
+        "lid": 4,
+        "cap": 6
+      },
+      {
+        "drawer": 3,
+        "control panel": 1,
+        "door": 1,
+        "bottle": 3,
+        "oven": 1,
+        "handle": 5,
+        "knob": 5,
+        "cap": 3
+      },
+      {
+        "drawer": 2,
+        "control panel": 1,
+        "oven": 1,
+        "handle": 3,
+        "knob": 5
+      },
+      {
+        "drawer": 3,
+        "oven": 1,
+        "handle": 4,
+        "knob": 3
+      },
+      {
+        "control panel": 1,
+        "oven": 1,
+        "knob": 5
+      },
+      {
+        "control panel": 1,
+        "oven": 1,
+        "handle": 1,
+        "knob": 5
+      },
+      {
+        "control panel": 1,
+        "oven": 1,
+        "handle": 1,
+        "knob": 5
+      },
+      {
+        "control panel": 1,
+        "door": 2,
+        "oven": 1,
+        "handle": 2,
+        "knob": 3
+      },
+      {
+        "drawer": 2,
+        "door": 2,
+        "handle": 4
+      },
+      {
+        "drawer": 1,
+        "door": 3,
+        "sink": 1,
+        "handle": 4
+      },
+      {
+        "drawer": 1,
+        "door": 2,
+        "faucet": 1,
+        "sink": 1,
+        "handle": 3
+      },
+      {
+        "drawer": 1,
+        "drain": 1,
+        "door": 2,
+        "jar": 2,
+        "faucet": 1,
+        "sink": 1,
+        "handle": 3,
+        "lid": 2
+      },
+      {
+        "drawer": 1,
+        "door": 2,
+        "drain": 1,
+        "faucet": 1,
+        "toaster": 1,
+        "jar": 2,
+        "sink": 1,
+        "handle": 3,
+        "lid": 2
+      },
+      {
+        "drain": 1,
+        "door": 2,
+        "toaster": 1,
+        "sink": 1,
+        "jar": 1,
+        "electric outlet": 1,
+        "faucet": 1,
+        "handle": 2,
+        "lid": 1
+      },
+      {
+        "door": 1,
+        "electric outlet": 1,
+        "toaster": 1,
+        "handle": 1
+      },
+      {
+        "bottle": 6,
+        "exhaust hood": 1,
+        "electric outlet": 1,
+        "jar": 2,
+        "knob": 1,
+        "lid": 2,
+        "cap": 6
+      },
+      {
+        "bottle": 5,
+        "electric outlet": 1,
+        "jar": 1,
+        "lid": 1,
+        "cap": 5
+      },
+      {
+        "drawer": 4,
+        "door": 2,
+        "control panel": 2,
+        "bottle": 5,
+        "microwave": 1,
+        "oven": 1,
+        "jar": 2,
+        "handle": 8,
+        "knob": 7,
+        "lid": 2,
+        "cap": 5
+      },
+      {
+        "drawer": 2,
+        "door": 2,
+        "oven": 1,
+        "electric outlet": 1,
+        "bottle": 2,
+        "jar": 1,
+        "handle": 5,
+        "knob": 5,
+        "lid": 1,
+        "cap": 2
+      },
+      {
+        "drain": 1,
+        "door": 2,
+        "sink": 1,
+        "electric outlet": 1,
+        "toaster": 1,
+        "handle": 2
+      },
+      {
+        "drain": 1,
+        "door": 2,
+        "toaster": 1,
+        "faucet": 1,
+        "jar": 1,
+        "sink": 1,
+        "electric outlet": 1,
+        "handle": 2,
+        "lid": 1
+      },
+      {
+        "door": 4,
+        "drain": 1,
+        "faucet": 1,
+        "sink": 1,
+        "jar": 2,
+        "handle": 4,
+        "lid": 2
+      },
+      {
+        "door": 4,
+        "drain": 1,
+        "faucet": 1,
+        "jar": 2,
+        "sink": 1,
+        "handle": 4,
+        "lid": 2
+      },
+      {
+        "door": 2,
+        "jar": 1,
+        "electric outlet": 1,
+        "handle": 2,
+        "lid": 1
+      },
+      {
+        "door": 2,
+        "switch panel": 1,
+        "switch": 1,
+        "handle": 2
+      }
+    ],
+    "most_detections_frame": 6,
+    "most_detections_image": "data/observations/frame_000006_sam3_det.webp"
+  },
+  "raw_nodes": 170,
+  "raw_edges_by_status": {
+    "local/committed": 60,
+    "local/tentative": 37,
+    "remote/committed": 4,
+    "remote/tentative": 3
+  },
+  "display_nodes_by_role": {
+    "C": 27,
+    "U": 106,
+    "O": 37
+  },
+  "display_edges": [
+    {
+      "source": "door",
+      "target": "cabinet",
+      "src": "C0001",
+      "dst": "O_CABINET_0001",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 24,
+      "margin": 0.0,
+      "first": 1,
+      "last": 100,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0001",
+      "upstream_dst": "C0001"
+    },
+    {
+      "source": "door",
+      "target": "cabinet",
+      "src": "C0003",
+      "dst": "O_CABINET_0001",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 24,
+      "margin": 0.0,
+      "first": 1,
+      "last": 100,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0001",
+      "upstream_dst": "C0003"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0002",
+      "dst": "C0001",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 11,
+      "margin": 26.472,
+      "first": 1,
+      "last": 100,
+      "commit_kf": 39,
+      "upstream_src": "C0001",
+      "upstream_dst": "U0002"
+    },
+    {
+      "source": "drain",
+      "target": "sink",
+      "src": "C0004",
+      "dst": "O0008",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 15,
+      "margin": 34.267,
+      "first": 1,
+      "last": 98,
+      "commit_kf": 40,
+      "upstream_src": "O0008",
+      "upstream_dst": "C0004"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0011",
+      "dst": "C0003",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 13,
+      "margin": 32.716,
+      "first": 1,
+      "last": 88,
+      "commit_kf": 40,
+      "upstream_src": "C0003",
+      "upstream_dst": "U0011"
+    },
+    {
+      "source": "lid",
+      "target": "jar",
+      "src": "U0012",
+      "dst": "O0009",
+      "kind": "local",
+      "type": "O-U",
+      "text": "turn to open or close the jar",
+      "status": "committed",
+      "support": 5,
+      "margin": 13.361,
+      "first": 1,
+      "last": 5,
+      "commit_kf": 5,
+      "upstream_src": "O0009",
+      "upstream_dst": "U0012"
+    },
+    {
+      "source": "lid",
+      "target": "jar",
+      "src": "U0013",
+      "dst": "O0006",
+      "kind": "local",
+      "type": "O-U",
+      "text": "turn to open or close the jar",
+      "status": "committed",
+      "support": 14,
+      "margin": 32.303,
+      "first": 1,
+      "last": 98,
+      "commit_kf": 40,
+      "upstream_src": "O0006",
+      "upstream_dst": "U0013"
+    },
+    {
+      "source": "lid",
+      "target": "jar",
+      "src": "U0014",
+      "dst": "O0010",
+      "kind": "local",
+      "type": "O-U",
+      "text": "turn to open or close the jar",
+      "status": "committed",
+      "support": 5,
+      "margin": 13.208,
+      "first": 1,
+      "last": 5,
+      "commit_kf": 6,
+      "upstream_src": "O0010",
+      "upstream_dst": "U0014"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0019",
+      "dst": "C0016",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 13,
+      "margin": 31.146,
+      "first": 3,
+      "last": 98,
+      "commit_kf": 40,
+      "upstream_src": "C0016",
+      "upstream_dst": "U0019"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0020",
+      "dst": "C0017",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 8,
+      "margin": 21.541,
+      "first": 3,
+      "last": 99,
+      "commit_kf": 40,
+      "upstream_src": "C0017",
+      "upstream_dst": "U0020"
+    },
+    {
+      "source": "drawer",
+      "target": "cabinet",
+      "src": "C0021",
+      "dst": "O_CABINET_0001",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 24,
+      "margin": 0.0,
+      "first": 1,
+      "last": 100,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0001",
+      "upstream_dst": "C0021"
+    },
+    {
+      "source": "drawer",
+      "target": "cabinet",
+      "src": "C0025",
+      "dst": "O_CABINET_0001",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 24,
+      "margin": 0.0,
+      "first": 1,
+      "last": 100,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0001",
+      "upstream_dst": "C0025"
+    },
+    {
+      "source": "door",
+      "target": "cabinet",
+      "src": "C0016",
+      "dst": "O_CABINET_0002",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 18,
+      "margin": 0.0,
+      "first": 3,
+      "last": 99,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0002",
+      "upstream_dst": "C0016"
+    },
+    {
+      "source": "door",
+      "target": "cabinet",
+      "src": "C0022",
+      "dst": "O_CABINET_0002",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 18,
+      "margin": 0.0,
+      "first": 3,
+      "last": 99,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0002",
+      "upstream_dst": "C0022"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0023",
+      "dst": "C0022",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 14,
+      "margin": 32.789,
+      "first": 4,
+      "last": 98,
+      "commit_kf": 40,
+      "upstream_src": "C0022",
+      "upstream_dst": "U0023"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0030",
+      "dst": "C0027",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 13,
+      "margin": 31.146,
+      "first": 5,
+      "last": 95,
+      "commit_kf": 40,
+      "upstream_src": "C0027",
+      "upstream_dst": "U0030"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0031",
+      "dst": "C0028",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 16,
+      "margin": 35.832,
+      "first": 5,
+      "last": 94,
+      "commit_kf": 29,
+      "upstream_src": "C0028",
+      "upstream_dst": "U0031"
+    },
+    {
+      "source": "control panel",
+      "target": "oven",
+      "src": "C0037",
+      "dst": "O0040",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 18,
+      "margin": 37.982,
+      "first": 6,
+      "last": 83,
+      "commit_kf": 37,
+      "upstream_src": "O0040",
+      "upstream_dst": "C0037"
+    },
+    {
+      "source": "handle",
+      "target": "drawer",
+      "src": "U0044",
+      "dst": "C0033",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 21,
+      "margin": 42.204,
+      "first": 6,
+      "last": 79,
+      "commit_kf": 30,
+      "upstream_src": "C0033",
+      "upstream_dst": "U0044"
+    },
+    {
+      "source": "handle",
+      "target": "drawer",
+      "src": "U0045",
+      "dst": "C0032",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 21,
+      "margin": 33.786,
+      "first": 6,
+      "last": 79,
+      "commit_kf": 37,
+      "upstream_src": "C0032",
+      "upstream_dst": "U0045"
+    },
+    {
+      "source": "handle",
+      "target": "drawer",
+      "src": "U0046",
+      "dst": "C0036",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 16,
+      "margin": 24.409,
+      "first": 6,
+      "last": 79,
+      "commit_kf": 37,
+      "upstream_src": "C0036",
+      "upstream_dst": "U0046"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0047",
+      "dst": "C0035",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 3,
+      "margin": 9.128,
+      "first": 6,
+      "last": 8,
+      "commit_kf": 28,
+      "upstream_src": "C0035",
+      "upstream_dst": "U0047"
+    },
+    {
+      "source": "handle",
+      "target": "oven",
+      "src": "U0048",
+      "dst": "O0040",
+      "kind": "local",
+      "type": "O-U",
+      "text": "pull to open or close the oven",
+      "status": "committed",
+      "support": 12,
+      "margin": 29.414,
+      "first": 6,
+      "last": 94,
+      "commit_kf": 31,
+      "upstream_src": "O0040",
+      "upstream_dst": "U0048"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0049",
+      "dst": "C0034",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 3,
+      "margin": 9.128,
+      "first": 6,
+      "last": 8,
+      "commit_kf": 5,
+      "upstream_src": "C0034",
+      "upstream_dst": "U0049"
+    },
+    {
+      "source": "drawer",
+      "target": "cabinet",
+      "src": "C0032",
+      "dst": "O_CABINET_0004",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 23,
+      "margin": 0.0,
+      "first": 6,
+      "last": 93,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0004",
+      "upstream_dst": "C0032"
+    },
+    {
+      "source": "drawer",
+      "target": "cabinet",
+      "src": "C0033",
+      "dst": "O_CABINET_0004",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 23,
+      "margin": 0.0,
+      "first": 6,
+      "last": 93,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0004",
+      "upstream_dst": "C0033"
+    },
+    {
+      "source": "handle",
+      "target": "kettle",
+      "src": "U0069",
+      "dst": "O0064",
+      "kind": "local",
+      "type": "O-U",
+      "text": "grasp to lift or pour",
+      "status": "committed",
+      "support": 22,
+      "margin": 38.364,
+      "first": 8,
+      "last": 58,
+      "commit_kf": 40,
+      "upstream_src": "O0064",
+      "upstream_dst": "U0069"
+    },
+    {
+      "source": "drawer",
+      "target": "cabinet",
+      "src": "C0036",
+      "dst": "O_CABINET_0004",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 23,
+      "margin": 0.0,
+      "first": 6,
+      "last": 93,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0004",
+      "upstream_dst": "C0036"
+    },
+    {
+      "source": "door",
+      "target": "cabinet",
+      "src": "C0034",
+      "dst": "O_CABINET_0002",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 18,
+      "margin": 0.0,
+      "first": 3,
+      "last": 99,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0002",
+      "upstream_dst": "C0034"
+    },
+    {
+      "source": "door",
+      "target": "cabinet",
+      "src": "C0035",
+      "dst": "O_CABINET_0002",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 18,
+      "margin": 0.0,
+      "first": 3,
+      "last": 99,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0002",
+      "upstream_dst": "C0035"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0029",
+      "dst": "C0026",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 9,
+      "margin": 22.837,
+      "first": 5,
+      "last": 85,
+      "commit_kf": 37,
+      "upstream_src": "C0026",
+      "upstream_dst": "U0029"
+    },
+    {
+      "source": "door",
+      "target": "oven",
+      "src": "C0095",
+      "dst": "O0040",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 3,
+      "margin": 4.187,
+      "first": 18,
+      "last": 20,
+      "commit_kf": 20,
+      "upstream_src": "O0040",
+      "upstream_dst": "C0095"
+    },
+    {
+      "source": "control panel",
+      "target": "microwave",
+      "src": "C0059",
+      "dst": "O0063",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 14,
+      "margin": 31.926,
+      "first": 8,
+      "last": 57,
+      "commit_kf": 21,
+      "upstream_src": "O0063",
+      "upstream_dst": "C0059"
+    },
+    {
+      "source": "knob",
+      "target": "control panel",
+      "src": "U0060",
+      "dst": "C0059",
+      "kind": "local",
+      "type": "C-U",
+      "text": "rotate to adjust the setting",
+      "status": "committed",
+      "support": 16,
+      "margin": 35.346,
+      "first": 7,
+      "last": 58,
+      "commit_kf": 29,
+      "upstream_src": "C0059",
+      "upstream_dst": "U0060"
+    },
+    {
+      "source": "knob",
+      "target": "control panel",
+      "src": "U0061",
+      "dst": "C0059",
+      "kind": "local",
+      "type": "C-U",
+      "text": "rotate to adjust the setting",
+      "status": "committed",
+      "support": 16,
+      "margin": 35.373,
+      "first": 7,
+      "last": 58,
+      "commit_kf": 37,
+      "upstream_src": "C0059",
+      "upstream_dst": "U0061"
+    },
+    {
+      "source": "button",
+      "target": "control panel",
+      "src": "U0101",
+      "dst": "C0059",
+      "kind": "local",
+      "type": "C-U",
+      "text": "press to set or start",
+      "status": "committed",
+      "support": 3,
+      "margin": 9.128,
+      "first": 19,
+      "last": 21,
+      "commit_kf": 40,
+      "upstream_src": "C0059",
+      "upstream_dst": "U0101"
+    },
+    {
+      "source": "button",
+      "target": "control panel",
+      "src": "U0102",
+      "dst": "C0059",
+      "kind": "local",
+      "type": "C-U",
+      "text": "press to set or start",
+      "status": "committed",
+      "support": 3,
+      "margin": 9.128,
+      "first": 19,
+      "last": 21,
+      "commit_kf": 40,
+      "upstream_src": "C0059",
+      "upstream_dst": "U0102"
+    },
+    {
+      "source": "cap",
+      "target": "bottle",
+      "src": "U0106",
+      "dst": "O0072",
+      "kind": "local",
+      "type": "O-U",
+      "text": "screw on or off to seal or open the bottle",
+      "status": "committed",
+      "support": 23,
+      "margin": 44.286,
+      "first": 20,
+      "last": 57,
+      "commit_kf": 20,
+      "upstream_src": "O0072",
+      "upstream_dst": "U0106"
+    },
+    {
+      "source": "door",
+      "target": "cabinet",
+      "src": "C0071",
+      "dst": "O_CABINET_0007",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 11,
+      "margin": 0.0,
+      "first": 9,
+      "last": 58,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0007",
+      "upstream_dst": "C0071"
+    },
+    {
+      "source": "handle",
+      "target": "kettle",
+      "src": "U0123",
+      "dst": "O0068",
+      "kind": "local",
+      "type": "O-U",
+      "text": "grasp to lift or pour",
+      "status": "committed",
+      "support": 19,
+      "margin": 35.461,
+      "first": 35,
+      "last": 58,
+      "commit_kf": 40,
+      "upstream_src": "O0068",
+      "upstream_dst": "U0123"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0070",
+      "dst": "C0105",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 8,
+      "margin": 17.654,
+      "first": 20,
+      "last": 57,
+      "commit_kf": 37,
+      "upstream_src": "C0105",
+      "upstream_dst": "U0070"
+    },
+    {
+      "source": "door",
+      "target": "microwave",
+      "src": "C0105",
+      "dst": "O0063",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 8,
+      "margin": 20.312,
+      "first": 20,
+      "last": 57,
+      "commit_kf": 40,
+      "upstream_src": "O0063",
+      "upstream_dst": "C0105"
+    },
+    {
+      "source": "handle",
+      "target": "door",
+      "src": "U0079",
+      "dst": "C0139",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 3,
+      "margin": 6.384,
+      "first": 64,
+      "last": 66,
+      "commit_kf": 40,
+      "upstream_src": "C0139",
+      "upstream_dst": "U0079"
+    },
+    {
+      "source": "cap",
+      "target": "bottle",
+      "src": "U0145",
+      "dst": "O0042",
+      "kind": "local",
+      "type": "O-U",
+      "text": "screw on or off to seal or open the bottle",
+      "status": "committed",
+      "support": 9,
+      "margin": 19.069,
+      "first": 66,
+      "last": 94,
+      "commit_kf": 40,
+      "upstream_src": "O0042",
+      "upstream_dst": "U0145"
+    },
+    {
+      "source": "knob",
+      "target": "control panel",
+      "src": "U0050",
+      "dst": "C0037",
+      "kind": "local",
+      "type": "C-U",
+      "text": "rotate to adjust the setting",
+      "status": "committed",
+      "support": 16,
+      "margin": 34.634,
+      "first": 6,
+      "last": 83,
+      "commit_kf": 37,
+      "upstream_src": "C0037",
+      "upstream_dst": "U0050"
+    },
+    {
+      "source": "knob",
+      "target": "control panel",
+      "src": "U0051",
+      "dst": "C0037",
+      "kind": "local",
+      "type": "C-U",
+      "text": "rotate to adjust the setting",
+      "status": "committed",
+      "support": 14,
+      "margin": 32.789,
+      "first": 6,
+      "last": 83,
+      "commit_kf": 37,
+      "upstream_src": "C0037",
+      "upstream_dst": "U0051"
+    },
+    {
+      "source": "knob",
+      "target": "control panel",
+      "src": "U0052",
+      "dst": "C0037",
+      "kind": "local",
+      "type": "C-U",
+      "text": "rotate to adjust the setting",
+      "status": "committed",
+      "support": 17,
+      "margin": 35.835,
+      "first": 6,
+      "last": 82,
+      "commit_kf": 37,
+      "upstream_src": "C0037",
+      "upstream_dst": "U0052"
+    },
+    {
+      "source": "cap",
+      "target": "bottle",
+      "src": "U0054",
+      "dst": "O0039",
+      "kind": "local",
+      "type": "O-U",
+      "text": "screw on or off to seal or open the bottle",
+      "status": "committed",
+      "support": 16,
+      "margin": 33.273,
+      "first": 6,
+      "last": 67,
+      "commit_kf": 40,
+      "upstream_src": "O0039",
+      "upstream_dst": "U0054"
+    },
+    {
+      "source": "cap",
+      "target": "bottle",
+      "src": "U0055",
+      "dst": "O0038",
+      "kind": "local",
+      "type": "O-U",
+      "text": "screw on or off to seal or open the bottle",
+      "status": "committed",
+      "support": 12,
+      "margin": 28.288,
+      "first": 6,
+      "last": 92,
+      "commit_kf": 30,
+      "upstream_src": "O0038",
+      "upstream_dst": "U0055"
+    },
+    {
+      "source": "knob",
+      "target": "control panel",
+      "src": "U0103",
+      "dst": "C0037",
+      "kind": "local",
+      "type": "C-U",
+      "text": "rotate to adjust the setting",
+      "status": "committed",
+      "support": 15,
+      "margin": 31.606,
+      "first": 19,
+      "last": 82,
+      "commit_kf": 37,
+      "upstream_src": "C0037",
+      "upstream_dst": "U0103"
+    },
+    {
+      "source": "lid",
+      "target": "jar",
+      "src": "U0155",
+      "dst": "O0088",
+      "kind": "local",
+      "type": "O-U",
+      "text": "turn to open or close the jar",
+      "status": "committed",
+      "support": 11,
+      "margin": 27.349,
+      "first": 69,
+      "last": 94,
+      "commit_kf": 40,
+      "upstream_src": "O0088",
+      "upstream_dst": "U0155"
+    },
+    {
+      "source": "knob",
+      "target": "control panel",
+      "src": "U0162",
+      "dst": "C0037",
+      "kind": "local",
+      "type": "C-U",
+      "text": "rotate to adjust the setting",
+      "status": "committed",
+      "support": 13,
+      "margin": 31.146,
+      "first": 70,
+      "last": 83,
+      "commit_kf": 37,
+      "upstream_src": "C0037",
+      "upstream_dst": "U0162"
+    },
+    {
+      "source": "door",
+      "target": "cabinet",
+      "src": "C0028",
+      "dst": "O_CABINET_0001",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 24,
+      "margin": 0.0,
+      "first": 1,
+      "last": 100,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0001",
+      "upstream_dst": "C0028"
+    },
+    {
+      "source": "cap",
+      "target": "bottle",
+      "src": "U0057",
+      "dst": "O0042",
+      "kind": "local",
+      "type": "O-U",
+      "text": "screw on or off to seal or open the bottle",
+      "status": "committed",
+      "support": 8,
+      "margin": 18.332,
+      "first": 6,
+      "last": 76,
+      "commit_kf": 40,
+      "upstream_src": "O0042",
+      "upstream_dst": "U0057"
+    },
+    {
+      "source": "cap",
+      "target": "bottle",
+      "src": "U0148",
+      "dst": "O0140",
+      "kind": "local",
+      "type": "O-U",
+      "text": "screw on or off to seal or open the bottle",
+      "status": "committed",
+      "support": 5,
+      "margin": 11.494,
+      "first": 67,
+      "last": 76,
+      "commit_kf": 40,
+      "upstream_src": "O0140",
+      "upstream_dst": "U0148"
+    },
+    {
+      "source": "cap",
+      "target": "bottle",
+      "src": "U0158",
+      "dst": "O0151",
+      "kind": "local",
+      "type": "O-U",
+      "text": "screw on or off to seal or open the bottle",
+      "status": "committed",
+      "support": 8,
+      "margin": 20.487,
+      "first": 69,
+      "last": 77,
+      "commit_kf": 40,
+      "upstream_src": "O0151",
+      "upstream_dst": "U0158"
+    },
+    {
+      "source": "door",
+      "target": "cabinet",
+      "src": "C0026",
+      "dst": "O_CABINET_0001",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 24,
+      "margin": 0.0,
+      "first": 1,
+      "last": 100,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0001",
+      "upstream_dst": "C0026"
+    },
+    {
+      "source": "handle",
+      "target": "drawer",
+      "src": "U0024",
+      "dst": "C0021",
+      "kind": "local",
+      "type": "C-U",
+      "text": "pull to open or close",
+      "status": "committed",
+      "support": 7,
+      "margin": 13.974,
+      "first": 4,
+      "last": 88,
+      "commit_kf": 37,
+      "upstream_src": "C0021",
+      "upstream_dst": "U0024"
+    },
+    {
+      "source": "door",
+      "target": "cabinet",
+      "src": "C0017",
+      "dst": "O_CABINET_0002",
+      "kind": "local",
+      "type": "O-C",
+      "text": "part of",
+      "status": "committed",
+      "support": 18,
+      "margin": 0.0,
+      "first": 3,
+      "last": 99,
+      "commit_kf": 40,
+      "upstream_src": "O_CABINET_0002",
+      "upstream_dst": "C0017"
+    },
+    {
+      "source": "cap",
+      "target": "bottle",
+      "src": "U0056",
+      "dst": "O0041",
+      "kind": "local",
+      "type": "O-U",
+      "text": "screw on or off to seal or open the bottle",
+      "status": "committed",
+      "support": 7,
+      "margin": 16.469,
+      "first": 6,
+      "last": 93,
+      "commit_kf": 40,
+      "upstream_src": "O0041",
+      "upstream_dst": "U0056"
+    },
+    {
+      "source": "faucet",
+      "target": "sink",
+      "src": "O0007",
+      "dst": "O0008",
+      "kind": "remote",
+      "type": "remote",
+      "text": "control the water flow",
+      "status": "committed",
+      "support": 100,
+      "margin": 32.062,
+      "first": 1,
+      "last": 100,
+      "commit_kf": 40,
+      "upstream_src": "O0007",
+      "upstream_dst": "O0008"
+    },
+    {
+      "source": "electric outlet",
+      "target": "kettle",
+      "src": "O0107",
+      "dst": "O0064",
+      "kind": "remote",
+      "type": "remote",
+      "text": "provide power",
+      "status": "committed",
+      "support": 100,
+      "margin": 5.309,
+      "first": 21,
+      "last": 100,
+      "commit_kf": 40,
+      "upstream_src": "O0107",
+      "upstream_dst": "O0064"
+    },
+    {
+      "source": "electric outlet",
+      "target": "exhaust hood",
+      "src": "O0150",
+      "dst": "O0065",
+      "kind": "remote",
+      "type": "remote",
+      "text": "provide power",
+      "status": "committed",
+      "support": 12,
+      "margin": 3.045,
+      "first": 69,
+      "last": 96,
+      "commit_kf": 40,
+      "upstream_src": "O0150",
+      "upstream_dst": "O0065"
+    },
+    {
+      "source": "electric outlet",
+      "target": "rice cooker",
+      "src": "O0150",
+      "dst": "O0067",
+      "kind": "remote",
+      "type": "remote",
+      "text": "provide power",
+      "status": "committed",
+      "support": 4,
+      "margin": 0.455,
+      "first": 89,
+      "last": 96,
+      "commit_kf": 40,
+      "upstream_src": "O0150",
+      "upstream_dst": "O0067"
+    }
+  ],
+  "loops": {
+    "functional_proposed": 32,
+    "functional_accepted": 7,
+    "functional_strengthened": 38,
+    "visual_candidates": 98
+  },
+  "accuracy": {
+    "sequence": "0kitchen/video0",
+    "ate_rmse_mm": 13.894707009559783,
+    "alignment": "Sim(3) Umeyama similarity fit on matched camera centers",
+    "protocol": "Exact original frame matches, one global similarity transform, translation RMSE in millimeters. Independent sequence evaluation.",
+    "matched_keyframes": 41,
+    "trajectory_keyframes": 41,
+    "reference_source": "OpenFunGraph/FunGraph3D 96117542, FunGraph3D/0kitchen/video0/images.txt (laser-registered COLMAP camera poses)",
+    "reference_manifest_sha256": "eabad9bb999372b29cd64cd1bd390beba0aee3e2de96243d30225e77bd959f7e",
+    "trajectory_sha256": "ff0d0497b4062831b820057875fadd9d5fc37045386f23aac85665c2d5405e0d",
+    "sim3": {
+      "ate_rmse_mm": 13.894707009559783,
+      "scale": 0.869505062855086,
+      "rotation_estimate_to_reference": [
+        [
+          -0.7942198049884951,
+          -0.3711564770914383,
+          0.48110058291079827
+        ],
+        [
+          -0.6036954003234892,
+          0.5719521499760166,
+          -0.5553580842718275
+        ],
+        [
+          -0.06904176266796401,
+          -0.7315145983853532,
+          -0.6783211830370738
+        ]
+      ],
+      "translation_estimate_to_reference_m": [
+        -0.5900656382080829,
+        -0.4063804483077105,
+        0.10623875559144616
+      ]
+    },
+    "se3": {
+      "ate_rmse_mm": 104.59091883842814,
+      "scale": 1.0,
+      "rotation_estimate_to_reference": [
+        [
+          -0.7942198049884951,
+          -0.3711564770914383,
+          0.48110058291079827
+        ],
+        [
+          -0.6036954003234892,
+          0.5719521499760166,
+          -0.5553580842718275
+        ],
+        [
+          -0.06904176266796401,
+          -0.7315145983853532,
+          -0.6783211830370738
+        ]
+      ],
+      "translation_estimate_to_reference_m": [
+        -0.6449653143138407,
+        -0.5002665436295156,
+        0.08226390557967389
+      ]
+    },
+    "per_keyframe": [
+      {
+        "image": "frame_00360.jpg",
+        "translation_error_mm": 8.317993639091513
+      },
+      {
+        "image": "frame_00373.jpg",
+        "translation_error_mm": 4.839930106393646
+      },
+      {
+        "image": "frame_00391.jpg",
+        "translation_error_mm": 1.4419514137233966
+      },
+      {
+        "image": "frame_00409.jpg",
+        "translation_error_mm": 5.192823183217584
+      },
+      {
+        "image": "frame_00433.jpg",
+        "translation_error_mm": 16.146459401230146
+      },
+      {
+        "image": "frame_00444.jpg",
+        "translation_error_mm": 22.415651982295124
+      },
+      {
+        "image": "frame_00456.jpg",
+        "translation_error_mm": 4.974298358291747
+      },
+      {
+        "image": "frame_00468.jpg",
+        "translation_error_mm": 4.9096148471166225
+      },
+      {
+        "image": "frame_00480.jpg",
+        "translation_error_mm": 8.546016520496567
+      },
+      {
+        "image": "frame_00492.jpg",
+        "translation_error_mm": 18.140597118485815
+      },
+      {
+        "image": "frame_00515.jpg",
+        "translation_error_mm": 5.320560166571876
+      },
+      {
+        "image": "frame_00551.jpg",
+        "translation_error_mm": 6.908793732734087
+      },
+      {
+        "image": "frame_00564.jpg",
+        "translation_error_mm": 6.292297122798411
+      },
+      {
+        "image": "frame_00578.jpg",
+        "translation_error_mm": 8.79398215970918
+      },
+      {
+        "image": "frame_00584.jpg",
+        "translation_error_mm": 11.212137774965111
+      },
+      {
+        "image": "frame_00597.jpg",
+        "translation_error_mm": 12.881476045069292
+      },
+      {
+        "image": "frame_00610.jpg",
+        "translation_error_mm": 13.693802021692939
+      },
+      {
+        "image": "frame_00629.jpg",
+        "translation_error_mm": 12.816619847372882
+      },
+      {
+        "image": "frame_00642.jpg",
+        "translation_error_mm": 11.79178151272909
+      },
+      {
+        "image": "frame_00655.jpg",
+        "translation_error_mm": 9.644591721348977
+      },
+      {
+        "image": "frame_00680.jpg",
+        "translation_error_mm": 6.546976827140669
+      },
+      {
+        "image": "frame_00710.jpg",
+        "translation_error_mm": 12.411262060645894
+      },
+      {
+        "image": "frame_00723.jpg",
+        "translation_error_mm": 4.544793443335089
+      },
+      {
+        "image": "frame_00735.jpg",
+        "translation_error_mm": 14.939533448340038
+      },
+      {
+        "image": "frame_00740.jpg",
+        "translation_error_mm": 10.209208013894148
+      },
+      {
+        "image": "frame_00745.jpg",
+        "translation_error_mm": 5.5125095103339445
+      },
+      {
+        "image": "frame_00750.jpg",
+        "translation_error_mm": 58.68087509657838
+      },
+      {
+        "image": "frame_00756.jpg",
+        "translation_error_mm": 9.197274753290856
+      },
+      {
+        "image": "frame_00774.jpg",
+        "translation_error_mm": 11.854778442286939
+      },
+      {
+        "image": "frame_00786.jpg",
+        "translation_error_mm": 8.773686136123667
+      },
+      {
+        "image": "frame_00850.jpg",
+        "translation_error_mm": 13.79202017659952
+      },
+      {
+        "image": "frame_00886.jpg",
+        "translation_error_mm": 11.558675152245488
+      },
+      {
+        "image": "frame_00904.jpg",
+        "translation_error_mm": 16.082221298703498
+      },
+      {
+        "image": "frame_00917.jpg",
+        "translation_error_mm": 8.743210913092701
+      },
+      {
+        "image": "frame_00929.jpg",
+        "translation_error_mm": 7.58092320683137
+      },
+      {
+        "image": "frame_00948.jpg",
+        "translation_error_mm": 12.953832294723119
+      },
+      {
+        "image": "frame_00954.jpg",
+        "translation_error_mm": 9.31475741054953
+      },
+      {
+        "image": "frame_00959.jpg",
+        "translation_error_mm": 6.561097818063408
+      },
+      {
+        "image": "frame_00977.jpg",
+        "translation_error_mm": 3.672221584339956
+      },
+      {
+        "image": "frame_00989.jpg",
+        "translation_error_mm": 8.794475531958833
+      },
+      {
+        "image": "frame_01000.jpg",
+        "translation_error_mm": 9.251832433387786
+      }
+    ]
+  },
+  "accuracy_note": "Only metrics evaluated against the reference for this sequence are reported.",
+  "api_usage": {
+    "successful_responses": 102,
+    "prompt_tokens": 241097,
+    "completion_tokens": 40325,
+    "total_tokens": 281422
+  }
+}

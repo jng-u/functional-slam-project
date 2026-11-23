@@ -1,3 +1,9 @@
+import {mountComparison} from './comparison.js';
+
+const viewerOnly = new URLSearchParams(location.search).get('view') === '3d';
+if (viewerOnly) document.body.classList.add('viewer-only');
+else mountComparison();
+
 const video = document.getElementById('demo-video');
 const videoStatus = document.getElementById('demo-status');
 

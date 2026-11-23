@@ -170,8 +170,9 @@ def _clean_graph(data: object) -> tuple[str, list[dict], list[dict]]:
     return query.strip(), safe_nodes, safe_edges
 
 
-def load_graph(site_root: Path) -> dict:
-    graph_path = site_root / "data" / "graph.json"
+def load_graph(site_root: Path, run: str = "luna") -> dict:
+    data_root = site_root / "data"
+    graph_path = (data_root / "deepseek" if run == "deepseek" else data_root) / "graph.json"
     try:
         graph = json.loads(graph_path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
@@ -358,7 +359,10 @@ class Handler(SimpleHTTPRequestHandler):
             data = json.loads(self.rfile.read(length))
             if not isinstance(data, dict):
                 raise QueryError("요청 형식이 올바르지 않습니다.", 400)
-            graph = load_graph(Path(self.directory))
+            run = data.get("run", "luna")
+            if run not in ("luna", "deepseek"):
+                raise QueryError("검색할 실행을 확인할 수 없습니다.", 400)
+            graph = load_graph(Path(self.directory), run)
             query, nodes, edges = _clean_graph({
                 "query": data.get("query"),
                 "nodes": graph.get("nodes"),
@@ -381,6 +385,8 @@ class Handler(SimpleHTTPRequestHandler):
                 }, retry_after=retry_after)
                 return
             result = query_luna(query, nodes, edges, api_key)
+            if run == "deepseek":
+                result["run"] = run
             self._json(200, result)
         except QueryError as exc:
             self._json(exc.status, {"error": str(exc)})

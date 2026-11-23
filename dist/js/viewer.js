@@ -62,6 +62,8 @@ function graphControls(container, graph, trajectory) {
   const submit = element('button', '지도에서 강조');
   submit.type = 'submit';
   form.append(label, submit);
+  const searchHelp = element('p', '의미 검색은 두 지도에서 공통으로 제공하는 GPT-6 Luna 도구입니다. 현재 선택한 지도의 그래프를 검색하며, 지도 생성에 사용된 언어 모델과는 별개입니다.');
+  searchHelp.className = 'viewer-help';
   const status = element('p');
   status.className = 'graph-query-status';
   status.setAttribute('role', 'status');
@@ -80,7 +82,7 @@ function graphControls(container, graph, trajectory) {
   const usage = element('p', '오늘 요청량을 불러오는 중입니다.');
   usage.className = 'graph-query-usage';
   usage.setAttribute('role', 'status');
-  panel.append(form, status, serverStatus, usage, results, detail);
+  panel.append(form, searchHelp, status, serverStatus, usage, results, detail);
   const provenance = element('p');
   provenance.className = 'viewer-help graph-timeline-source';
   timeline.after(provenance);
@@ -91,7 +93,7 @@ function quatToMatrix([x, y, z, w]) {
   return new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion(x, y, z, w));
 }
 
-export function createViewer(container, {cloud, trajectory, graph, loops}) {
+export function createViewer(container, {cloud, trajectory, graph, loops, isDeepSeek = false}) {
   container.querySelector('.viewer-wait')?.remove();
   const renderer = new THREE.WebGLRenderer({antialias: true, powerPreference: 'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
@@ -408,7 +410,7 @@ export function createViewer(container, {cloud, trajectory, graph, loops}) {
       ui.serverStatus.textContent = connected ? '백엔드 서버 연결됨' : '백엔드 서버 연결 안 됨';
       ui.serverStatus.dataset.state = connected ? 'up' : 'down';
       ui.usage.textContent = usageResult.status === 'fulfilled'
-        ? `오늘 Luna 요청 ${usageResult.value.used} / ${usageResult.value.limit}건 · 한국 시간 자정 초기화`
+        ? `오늘 공용 GPT 의미 검색 요청 ${usageResult.value.used} / ${usageResult.value.limit}건 · 한국 시간 자정 초기화`
         : '오늘 요청량을 불러오지 못했습니다.';
     });
   }
@@ -461,7 +463,7 @@ export function createViewer(container, {cloud, trajectory, graph, loops}) {
     candidateOnly = false;
     if (!activeQuery) return;
     if (lunaPending) {
-      ui.status.textContent = 'GPT-6 Luna가 그래프에서 노드를 찾고 있습니다…';
+      ui.status.textContent = 'GPT-6 Luna가 선택한 그래프에서 노드를 찾고 있습니다…';
       return;
     }
     const result = lunaMatches
@@ -488,9 +490,9 @@ export function createViewer(container, {cloud, trajectory, graph, loops}) {
         ? `노드 ${queryNodes.size}개 · 확정 연결 ${queryEdges.size}개를 지도에서 강조했습니다.`
         : '현재 표시한 역할과 키프레임에서 일치하는 항목이 없습니다.';
     ui.status.textContent = lunaMatches
-      ? `GPT-6 Luna · ${summary}`
+      ? `GPT 의미 검색 · ${summary}`
       : lunaFailure
-        ? `Luna 연결 실패 (${lunaFailure}). 기본 검색 결과 · ${summary}`
+        ? `GPT 의미 검색 실패 (${lunaFailure}). 로컬 규칙 검색 결과 · ${summary}`
         : summary;
   }
 
@@ -562,10 +564,13 @@ export function createViewer(container, {cloud, trajectory, graph, loops}) {
       fetch(queryApiUrl, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({query: activeQuery}),
+        body: JSON.stringify(isDeepSeek ? {query: activeQuery, run: 'deepseek'} : {query: activeQuery}),
       }).then(async response => {
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+        if (isDeepSeek && payload.run !== 'deepseek') {
+          throw new Error('API가 DeepSeek 실행의 그래프를 확인하지 못했습니다.');
+        }
         if (!Array.isArray(payload.node_ids) || !Array.isArray(payload.edge_indices)) {
           throw new Error('응답 형식 오류');
         }

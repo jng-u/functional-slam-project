@@ -7,11 +7,30 @@ const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls)
 const fmt = new Intl.NumberFormat('ko-KR');
 const ROLE_NAME = {O: '물체', C: '중간 부품', U: '조작 부위'};
 const ROLE_CSS = {O: '#d88c33', C: '#5a8ad6', U: '#2fc49c'};
+const params = new URLSearchParams(window.location.search);
+const isDeepSeek = params.get('run') === 'deepseek';
+const viewerOnly = params.get('view') === '3d';
+const dataPrefix = isDeepSeek ? 'data/deepseek/' : 'data/';
+const frameParam = params.get('frame');
+const requestedFrame = /^\d+$/.test(frameParam ?? '') ? Number(frameParam) : -1;
 
-mountAnchorDemo();
-mountPosteriorDemo();
-renderAblation();
-loadRun().catch(err => { $('run-lede').textContent = '실행 결과를 불러오지 못했습니다: ' + err.message; });
+if (!viewerOnly) {
+  mountAnchorDemo();
+  mountPosteriorDemo();
+  renderAblation();
+}
+const lunaRun = getJSON('data/run.json');
+lunaRun.then(renderResults).catch(() => { $('results-context').textContent = '재현 실행 기록을 불러오지 못했습니다.'; });
+loadRun(isDeepSeek ? getJSON(dataPrefix + 'run.json') : lunaRun)
+  .catch(err => {
+    if (isDeepSeek) {
+      $('viewer').closest('.viewer-shell').hidden = true;
+      for (const id of ['inference', 'run-metrics', 'graph-explainer', 'timeline-limit']) $(id).hidden = true;
+      $('run-lede').textContent = 'DeepSeek 실행 데이터를 불러오지 못해 3D 지도와 2D 관측을 표시할 수 없습니다. (' + err.message + ')';
+      return;
+    }
+    $('run-lede').textContent = '실행 결과를 불러오지 못했습니다: ' + err.message;
+  });
 
 function renderAblation() {
   const rows = [
@@ -40,7 +59,7 @@ async function getJSON(path) {
 }
 
 async function loadCloud(meta) {
-  const res = await fetch('data/' + meta.file); if (!res.ok) throw new Error('점군 파일 (' + res.status + ')');
+  const res = await fetch(dataPrefix + meta.file); if (!res.ok) throw new Error('점군 파일 (' + res.status + ')');
   const buf = await res.arrayBuffer(), n = meta.count;
   if (buf.byteLength !== n * 9) throw new Error('점군 파일 크기가 기록과 다릅니다.');
   const q = new Int16Array(buf, 0, n * 3), positions = new Float32Array(n * 3);
@@ -50,23 +69,35 @@ async function loadCloud(meta) {
   return {positions, colors: new Uint8Array(buf, n * 6, n * 3)};
 }
 
-async function loadRun() {
-  const run = await getJSON('data/run.json').catch(err => {
-    $('results-context').textContent = '재현 실행 기록을 불러오지 못했습니다.';
-    throw err;
-  });
-  renderResults(run);
-  const graph = run.graph ? await getJSON('data/' + run.graph) : null;
+function resolveObservationUrl(url) {
+  return url?.startsWith('data/observations/') ? dataPrefix + url.slice('data/'.length) : url;
+}
+
+async function loadRun(manifest) {
+  const run = await manifest;
+  const frames = (run.frames ?? []).map(frame => ({
+    ...frame,
+    url: resolveObservationUrl(frame.url),
+    segmentation_url: resolveObservationUrl(frame.segmentation_url),
+  }));
+  const frameIndex = frames[requestedFrame] ? requestedFrame : null;
+  const graph = run.graph ? await getJSON(dataPrefix + run.graph) : null;
   describeRun(run, graph);
-  if (run.inference) {
-    const [{mountInference}, inference] = await Promise.all([import('./inference.js'), getJSON('data/' + run.inference)]);
-    mountInference(inference, run.frames, {hasGraph: !!graph});
+  if (run.inference && !viewerOnly) {
+    const [{mountInference}, inference] = await Promise.all([import('./inference.js'), getJSON(dataPrefix + run.inference)]);
+    mountInference(inference, frames, {hasGraph: !!graph});
+    if (frameIndex !== null && inference.frames[frameIndex]) {
+      const slider = $('inf-frame');
+      slider.value = frameIndex;
+      slider.dispatchEvent(new Event('input'));
+    }
   }
   const cloud = await loadCloud(run.map);
   const {createViewer} = await import('./viewer.js');
-  const viewer = createViewer($('viewer'), {cloud, trajectory: run.trajectory, graph, loops: run.loops});
-  wireViewer(viewer, run, graph);
+  const viewer = createViewer($('viewer'), {cloud, trajectory: run.trajectory, graph, loops: run.loops, isDeepSeek});
+  wireViewer(viewer, frames, graph, frameIndex);
   if (run.loops && graph) describeLoops(run.loops);
+  document.dispatchEvent(new Event('fslam:viewer-ready'));
 }
 
 function describeLoops(loops) {
@@ -80,7 +111,7 @@ function describeRun(run, graph) {
   $('graph-explainer').hidden = !graph;
   $('timeline-limit').hidden = !graph;
   const lede = $('run-lede');
-  const llm = run.llm?.model ? '언어 모델은 ' + run.llm.model + '입니다.' : '';
+  const llm = run.llm?.model ? '이 실행의 지도 생성에 사용한 언어 모델은 ' + run.llm.model + '입니다.' : '';
   lede.textContent = graph
     ? 'FunGraph3D 0kitchen/video0의 RGB ' + run.frames_processed + '장을 Functional-SLAM 구현과 논문 설정(fungraph_eval_node_place.yaml)으로 처리했습니다. SAM3를 포함한 실행의 3D 노드와 확정 연결을 아래 지도에서 탐색할 수 있습니다. 노드와 연결은 online_functional_graph.json 출력이며, 정답이나 실제 조작 검증을 뜻하지 않습니다. ' + llm
     : run.inference
@@ -101,7 +132,7 @@ function describeRun(run, graph) {
   meta.append(dl, pre);
 }
 
-function wireViewer(viewer, run, graph) {
+function wireViewer(viewer, frames, graph, frameIndex) {
   const roles = new Set(['O', 'C', 'U']);
   const chipBox = $('role-filter');
   for (const r of ['O', 'C', 'U']) {
@@ -116,13 +147,15 @@ function wireViewer(viewer, run, graph) {
   $('point-size').addEventListener('input', e => viewer.setPointSize(Number(e.target.value)));
   viewer.setPointSize(Number($('point-size').value));
   $('view-reset').addEventListener('click', () => viewer.reset());
-  if (!graph) { $('detail').append(el('p', 'empty', '기능 그래프가 생성되면 노드를 눌러 실제 관측 사진과 연결 근거를 볼 수 있습니다.')); return; }
+  if (!graph) {
+    if (frameIndex !== null) showFrame();
+    else $('detail').append(el('p', 'empty', '기능 그래프가 생성되면 노드를 눌러 실제 관측 사진과 연결 근거를 볼 수 있습니다.'));
+    return;
+  }
 
   const byId = new Map(graph.nodes.map(n => [n.id, n]));
   const parentOf = new Map(), children = new Map();
   for (const e of graph.edges) if (e.kind === 'local') { parentOf.set(e.src, e); if (!children.has(e.dst)) children.set(e.dst, []); children.get(e.dst).push(e.src); }
-  const frames = run.frames;
-
   const buttons = new Map();
   const listed = new Set();
   function item(id) {
@@ -144,13 +177,13 @@ function wireViewer(viewer, run, graph) {
   $('tree-count').textContent = '노드 ' + graph.nodes.length + ' · 연결 ' + graph.edges.length;
 
   let current = null;
-  function select(id, fly = true, scroll = true) {
+  function select(id, fly = true, scroll = true, observationIndex = null) {
     const n = byId.get(id); if (!n) return;
     if (!roles.has(n.role)) { roles.add(n.role); viewer.setRoles(new Set(roles)); chipBox.querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-pressed', String(roles.has(['O', 'C', 'U'][i])))); }
     current = id; viewer.select(id, fly);
     buttons.forEach((b, k) => b.classList.toggle('on', k === id));
     if (scroll) buttons.get(id)?.scrollIntoView({block: 'nearest'});
-    showDetail(id);
+    showDetail(id, observationIndex);
   }
   function selectFinal(id) {
     viewer.setTime(Infinity);
@@ -178,12 +211,9 @@ function wireViewer(viewer, run, graph) {
     }
   });
 
-  function crop(n) {
-    // A last-observation box must never be drawn on the best-view frame.
-    const matched = Number.isInteger(n.box_frame) && !!frames[n.box_frame];
-    const f = frames[matched ? n.box_frame : n.best_frame]; if (!f) return null;
+  function crop(f, n, matched = false) {
     const div = el('div', 'crop'), img = el('img');
-    img.src = f.url; img.alt = n.label + ' · ' + f.name;
+    img.src = f.url; img.alt = n ? n.label + ' · ' + f.name : f.name;
     img.addEventListener('error', () => { div.replaceChildren(el('p', 'empty', '관측 사진을 불러오지 못했습니다.')); });
     div.append(img);
     if (matched && Array.isArray(n.box) && n.box.length === 4 && n.box.every(Number.isFinite)) {
@@ -194,13 +224,18 @@ function wireViewer(viewer, run, graph) {
         div.append(bx);
       }
     }
-    const wrap = el('div'); wrap.append(div, el('p', 'crop-cap',
-      (matched ? '마지막 관측 프레임 ' : '대표 프레임 · 박스 대응 정보 없음 · ') + f.name + ' · 박스는 2D 관측 영역이며 3D 형상이 아닙니다.'));
+    const caption = n
+      ? (matched ? '마지막 관측 프레임 ' : '대표 프레임 · 박스 대응 정보 없음 · ') + f.name + ' · 박스는 2D 관측 영역이며 3D 형상이 아닙니다.'
+      : f.name;
+    const wrap = el('div'); wrap.append(div, el('p', 'crop-cap', caption));
     const source = el('a', 'crop-cap', '원본 사진 보기'); source.href = f.url; source.target = '_blank'; source.rel = 'noopener'; wrap.append(source);
     return wrap;
   }
+  function showFrame() {
+    $('detail').append(el('p', 'empty', '이 프레임과 연결된 3D 노드 관측 기록이 없습니다.'), crop(frames[frameIndex]));
+  }
   function link(id) { const b = el('button', null, byId.get(id).label); b.type = 'button'; b.addEventListener('click', () => select(id)); return b; }
-  function showDetail(id) {
+  function showDetail(id, observationIndex) {
     const n = byId.get(id), box = $('detail'); box.replaceChildren();
     const h = el('h4'); h.append(el('span', 'role ' + n.role, n.role), document.createTextNode(n.label)); box.append(h);
     const dl = el('dl');
@@ -209,7 +244,9 @@ function wireViewer(viewer, run, graph) {
     add('앵커 키프레임', n.anchor_kf != null ? '#' + n.anchor_kf : null);
     add('처음 등장', n.born_kf != null ? '키프레임 #' + n.born_kf : null);
     box.append(dl);
-    const c = crop(n); if (c) box.append(c);
+    const matched = Number.isInteger(n.box_frame) && !!frames[n.box_frame];
+    const index = observationIndex ?? (matched ? n.box_frame : n.best_frame);
+    if (frames[index]) box.append(crop(frames[index], n, matched && index === n.box_frame));
     const rel = el('div', 'rel');
     const chain = []; let cur = id;
     while (parentOf.has(cur) && chain.length < 6) { const e = parentOf.get(cur); chain.push(e); cur = e.dst; }
@@ -254,6 +291,10 @@ function wireViewer(viewer, run, graph) {
     }
     tree.append(list);
   }
-  if (roots.length || graph.nodes.length) select(roots[0]?.id ?? graph.nodes[0].id, false, false);
+  if (frameIndex !== null) {
+    const node = graph.nodes.find(n => n.box_frame === frameIndex) ?? graph.nodes.find(n => n.best_frame === frameIndex);
+    if (node) select(node.id, false, false, frameIndex);
+    else showFrame();
+  } else if (roots.length || graph.nodes.length) select(roots[0]?.id ?? graph.nodes[0].id, false, false);
   else $('detail').append(el('p', 'empty', '이 실행에는 내보낸 3D 노드가 없습니다.'));
 }

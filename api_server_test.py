@@ -180,6 +180,24 @@ class DailyQuotaTests(unittest.TestCase):
     @patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"})
     @patch.object(api_server.Handler, "log_message")
     @patch.object(api_server, "query_luna")
+    def test_deepseek_query_never_searches_the_luna_graph(self, query_luna, _log):
+        body = b'{"query":"drawer","run":"deepseek"}'
+        self.assertEqual(self.request("POST", body=body)[0], 503)
+        self.assertEqual(self.request("POST", body=b'{"query":"drawer","run":"../graph"}')[0], 400)
+        query_luna.assert_not_called()
+
+        deepseek = self.root / "data/deepseek"
+        deepseek.mkdir()
+        (deepseek / "graph.json").write_text('{"nodes":[{"id":"D1","label":"drawer"}],"edges":[]}')
+        query_luna.return_value = {"node_ids": ["D1"], "edge_indices": [], "candidate_only": True}
+        status, _, payload = self.request("POST", body=body)
+        self.assertEqual(status, 200)
+        self.assertEqual(json.loads(payload)["run"], "deepseek")
+        self.assertEqual([node["id"] for node in query_luna.call_args.args[1]], ["D1"])
+
+    @patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"})
+    @patch.object(api_server.Handler, "log_message")
+    @patch.object(api_server, "query_luna")
     def test_storage_failure_blocks_the_openai_call(self, query_luna, _log):
         with patch.object(self.quota, "reserve", side_effect=sqlite3.OperationalError):
             self.assertEqual(self.request("POST", body=b'{"query": "drawer"}')[0], 503)

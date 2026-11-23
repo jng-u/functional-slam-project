@@ -42,7 +42,7 @@
         <video id="demo-video" controls playsinline preload="metadata" src="data/demo.mp4" poster="data/observations/frame_000037_rgb.webp" aria-label="Functional-SLAM 실행 데모" aria-describedby="demo-caption">
           브라우저가 영상 재생을 지원하지 않습니다.
         </video>
-        <figcaption id="demo-caption" class="project-caption">FunGraph3D · 0kitchen/video0</figcaption>
+        <figcaption id="demo-caption" class="project-caption">GPT-6 Luna · FunGraph3D 0kitchen/video0</figcaption>
         <p id="demo-status" class="project-caption" role="status"></p>
       </figure>
       <div class="demo-summary">
@@ -220,6 +220,11 @@
 
   <section id="run" class="run" aria-labelledby="run-title">
     <h2 id="run-title">인터랙티브 3D 그래프</h2>
+    <nav id="run-selector" class="run-selector" aria-label="탐색할 실행">
+      <a href="./#run">GPT-6 Luna</a>
+      <a href="?run=deepseek#run" hidden>DeepSeek V4.1 Flash</a>
+      <a href="#compare">두 실행 비교</a>
+    </nav>
     <p class="section-lede" id="run-lede">실행 기록을 불러오는 중입니다.</p>
     <div class="run-metrics" id="run-metrics"></div>
     <p class="graph-explainer" id="graph-explainer" hidden><b>확정된 3D 그래프.</b> 노드·이름·선을 누르거나 목록에서 골라 관측 사진과 연결 근거를 확인하세요. 로컬 방향은 부위 → 상위 대상, 원격은 내보낸 src → dst입니다. 관계 원문은 방향이 다를 수 있습니다. 확정은 시스템 내부 상태이며 정답·실제 작동의 검증이 아닙니다.</p>
@@ -283,20 +288,26 @@
 
   <section id="results" aria-labelledby="results-title">
     <h2 id="results-title">재현 결과</h2>
-    <p class="section-lede">논문은 FunGraph3D 18개 시퀀스의 Recall과 ATE, RTX 3090에서의 FPS를 보고합니다. 재현 열은 0kitchen/video0 한 시퀀스의 실행 기록을 사용하므로 평가 범위와 하드웨어가 다릅니다.</p>
+    <p class="section-lede">논문은 FunGraph3D 18개 시퀀스의 Recall과 ATE, RTX 3090에서의 FPS를 보고합니다. 두 재현 실행은 0kitchen/video0 한 시퀀스를 RTX 4070 Ti에서 처리했습니다.</p>
     <div class="table-wrap" tabindex="0" role="region" aria-label="논문과 재현 실행의 성능 비교">
       <table class="result-table" aria-describedby="results-context">
-        <thead><tr><th scope="col">지표</th><th scope="col">논문 보고</th><th scope="col">재현 실행</th></tr></thead>
+        <thead><tr><th scope="col">지표</th><th scope="col">논문 보고</th><th scope="col">GPT-6 Luna</th><th scope="col">DeepSeek V4.1 Flash</th></tr></thead>
         <tbody>
-          <tr><th scope="row">처리 속도 (FPS)</th><td>0.38</td><td id="result-fps">—</td></tr>
-          <tr><th scope="row">노드 Recall@3 (%)</th><td>64.55</td><td id="result-recall">미측정</td></tr>
-          <tr><th scope="row">ATE RMSE (mm)</th><td>16.5</td><td id="result-ate">미측정</td></tr>
+          <tr><th scope="row">처리 속도 (FPS)</th><td>0.38</td><td id="result-fps">—</td><td id="result-deepseek-fps">—</td></tr>
+          <tr><th scope="row">노드 Recall@3 (%)</th><td>64.55</td><td id="result-recall">미측정</td><td id="result-deepseek-recall">—</td></tr>
+          <tr><th scope="row">ATE RMSE (mm)</th><td>16.5</td><td id="result-ate">미측정</td><td id="result-deepseek-ate">—</td></tr>
         </tbody>
       </table>
     </div>
     <p class="project-caption" id="results-context" role="status">재현 실행 기록을 불러오는 중입니다.</p>
     <p class="project-caption" id="accuracy-context"></p>
     <p class="project-caption"><a href="https://arxiv.org/html/2609.07497v1#S4.SS4">논문 표 3·4</a></p>
+    <section id="compare" class="run-comparison" aria-labelledby="compare-title">
+      <h3 id="compare-title">GPT-6 Luna와 DeepSeek V4.1 Flash 비교</h3>
+      <p class="project-caption">FunGraph3D 0kitchen/video0 · 동일한 RGB 프레임 순서로 비교합니다.</p>
+      <p id="compare-status" class="run-note" role="status">비교 데이터를 불러오는 중입니다.</p>
+      <div id="compare-content"></div>
+    </section>
     <details class="project-detail">
       <summary>논문 벤치마크 전체 보기</summary>
   <section id="numbers" aria-labelledby="numbers-title">

@@ -2,7 +2,7 @@ FROM python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb
 
 WORKDIR /app
 COPY api_server.py ./
-COPY dist/data/graph.json ./dist/data/graph.json
+COPY dist/data/ ./dist/data/
 RUN install -d -o 65534 -g 65534 /var/lib/functional-slam
 
 USER 65534:65534

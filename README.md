@@ -12,6 +12,12 @@ python3 api_server.py --host 127.0.0.1 --port 11017
 
 `OPENAI_API_KEY` 환경 변수나 상위 프로젝트의 무시 처리된 `.secrets/openai.env`에서 API 키를 읽습니다. 페이지는 `/healthz`에서 서버 연결을 확인하고 `/api/usage`에서 한국 시간 기준 오늘 사용량을 읽습니다. 두 상태를 30초마다 갱신합니다.
 
+## 실험 데이터
+
+Luna 기본 실행과 요약은 `dist/data/run.json`과 `dist/data/summary.json`에 있습니다. DeepSeek 비교 뷰(`?run=deepseek`)는 `dist/data/deepseek/`의 별도 내보내기를 읽습니다. 각 실행의 관측 경로는 `data/observations/...` 형식으로 저장되며, 뷰어가 선택한 실행 경로로 변환합니다.
+
+`opencode-go/deepseek-v4.1-flash` 실행이 끝나면 상위 프로젝트에서 `python3 -B scripts/export_deepseek.py --run .work/run/opencode`를 실행합니다. 검증이 끝나면 `deepseek/`에 `run.json`, `graph.json`, `inference.json`, `map.bin`, `observations/`, `demo.mp4`, `summary.json`이 함께 생성됩니다.
+
 ## API 서버 배포
 
 `deploy/.env.example`을 `deploy/.env`로 복사하고 호스트 이름, Pages 출처, OpenAI API 키를 설정합니다. AWS IAM에서 이 서버 전용 사용자를 만들고 `deploy/ROUTE53_IAM_POLICY.example.json`의 정책을 연결한 뒤 액세스 키를 발급합니다. 정책의 호스팅 영역 ID 자리표시자를 실제 ID로 바꾸세요. 키는 `deploy/.env`의 `AWS_ACCESS_KEY_ID`와 `AWS_SECRET_ACCESS_KEY`에만 넣고 저장소나 채팅에 붙여 넣지 마세요. 이 권한은 `_acme-challenge` TXT 레코드로 인증서를 발급하는 데 사용합니다.

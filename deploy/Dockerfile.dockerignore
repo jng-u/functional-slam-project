@@ -5,3 +5,6 @@ dist/*
 !dist/data/
 dist/data/*
 !dist/data/graph.json
+!dist/data/deepseek/
+dist/data/deepseek/*
+!dist/data/deepseek/graph.json
