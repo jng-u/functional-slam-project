@@ -21,9 +21,15 @@ services:
       retries: 3
 
   caddy:
-    image: caddy:2-alpine
+    image: functional-slam-caddy-route53:local
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
     environment:
       LUNA_API_DOMAIN: ${LUNA_API_DOMAIN:?Set LUNA_API_DOMAIN}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
     depends_on:
       api:
         condition: service_healthy

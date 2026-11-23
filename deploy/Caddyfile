@@ -7,7 +7,19 @@
 	}
 }
 
+http://{$LUNA_API_DOMAIN} {
+	redir https://{$LUNA_API_DOMAIN}:11443{uri} permanent
+}
+
 {$LUNA_API_DOMAIN} {
+	tls {
+		issuer acme {
+			disable_http_challenge
+			disable_tlsalpn_challenge
+			dns route53
+		}
+	}
+
 	@api path /api/query /api/usage /healthz
 	handle @api {
 		reverse_proxy api:11017
