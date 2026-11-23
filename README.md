@@ -35,6 +35,6 @@ docker compose up -d --build --wait
 
 저장소 **Settings → Pages → Build and deployment → Source**에서 **GitHub Actions**를 선택합니다. API 호스트를 준비했다면 GitHub 저장소 변수 `LUNA_API_URL`에 `https://<LUNA_API_DOMAIN>:11443/api/query`를 저장합니다. API 주소가 아직 없다면 변수를 비워 둬도 사이트를 게시할 수 있습니다. 이때 페이지에는 백엔드 연결 안 됨과 사용량을 불러오지 못했다는 상태가 표시됩니다. API 주소를 추가한 뒤 Pages 워크플로를 다시 실행합니다.
 
-**Actions → Deploy GitHub Pages**를 수동 실행합니다.
+`dist/`, `scripts/package-pages.mjs` 또는 Pages 워크플로를 변경해 `main`에 푸시하면 자동으로 배포됩니다. 저장소 변수만 바꿨다면 **Actions → Deploy GitHub Pages**를 수동 실행합니다.
 
 모든 방문자가 하루 100회의 Luna 요청을 공유합니다. 한도는 한국 시간 자정에 초기화됩니다. 상태 조회는 한도에 포함되지 않습니다.

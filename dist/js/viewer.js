@@ -93,16 +93,51 @@ function quatToMatrix([x, y, z, w]) {
   return new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion(x, y, z, w));
 }
 
-export function createViewer(container, {cloud, trajectory, graph, loops, isDeepSeek = false}) {
-  container.querySelector('.viewer-wait')?.remove();
+export function createViewer(container) {
   const renderer = new THREE.WebGLRenderer({antialias: true, powerPreference: 'high-performance'});
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   renderer.setClearColor(0x0f1716);
   container.append(renderer.domElement);
   const labels = document.createElement('div'); labels.className = 'labels'; container.append(labels);
 
-  const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(55, 1, 0.005, 200);
+  const surface = {container, renderer, labels, camera, controls: null};
+  let draw, raf = 0;
+  function frame(now) {
+    raf = requestAnimationFrame(frame);
+    draw?.(now);
+  }
+  new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting && !raf) raf = requestAnimationFrame(frame);
+    else if (!entry.isIntersecting) {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    }
+  }).observe(container);
+  function resize() {
+    const w = container.clientWidth, h = container.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  new ResizeObserver(resize).observe(container);
+  resize();
+
+  return {
+    showMap(data) {
+      const {render, ...map} = mountMap(surface, data);
+      draw = render;
+      data.signal.addEventListener('abort', () => { draw = undefined; }, {once: true});
+      container.querySelector('.viewer-wait')?.remove();
+      return map;
+    },
+  };
+}
+
+function mountMap(surface, {cloud, trajectory, graph, loops, isDeepSeek, signal}) {
+  const {container, renderer, labels, camera} = surface;
+  const scene = new THREE.Scene();
 
   // Frame the map with the average camera orientation so "up" matches the video.
   const box = new THREE.Box3(), center = new THREE.Vector3(), up = new THREE.Vector3(), forward = new THREE.Vector3();
@@ -122,13 +157,16 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
   box.min.set(ext[0][0], ext[1][0], ext[2][0]); box.max.set(ext[0][1], ext[1][1], ext[2][1]);
   box.getCenter(center);
   const radius = Math.max(.01, box.getSize(new THREE.Vector3()).length() / 2);
-  camera.up.copy(up);
-
-  const controls = new OrbitControls(camera, renderer.domElement);
-  Object.assign(controls, {enableDamping: true, dampingFactor: 0.09, rotateSpeed: 0.75, panSpeed: 0.9, zoomSpeed: 1.1,
-    screenSpacePanning: true, zoomToCursor: true, minDistance: radius * 0.02, maxDistance: radius * 12});
-  controls.keys = {LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown'};
-  // Arrow keys remain available for page controls and timeline inputs.
+  const firstMap = surface.controls === null;
+  if (firstMap) {
+    camera.up.copy(up);
+    surface.controls = new OrbitControls(camera, renderer.domElement);
+    Object.assign(surface.controls, {enableDamping: true, dampingFactor: 0.09, rotateSpeed: 0.75, panSpeed: 0.9, zoomSpeed: 1.1,
+      screenSpacePanning: true, zoomToCursor: true});
+  }
+  const controls = surface.controls;
+  controls.minDistance = radius * 0.02;
+  controls.maxDistance = radius * 12;
 
   const home = () => {
     const side = new THREE.Vector3().crossVectors(forward, up).normalize();
@@ -210,7 +248,7 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
     if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
     inst.instanceMatrix.needsUpdate = true;
     inst.computeBoundingSphere();
-    edgeGroup.traverse(o => { o.geometry?.dispose(); if (o.material) o.material.dispose(); });
+    edgeGroup.traverse(o => { if (o.parent?.type !== 'ArrowHelper') o.geometry?.dispose(); o.material?.dispose(); });
     edgeGroup.clear();
     const near = state.selected ? neighborhood(state.selected) : null;
     const local = [], localCol = [], hot = [], remote = [], matched = [];
@@ -299,7 +337,8 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
     flyTo(sphere.center.clone().addScaledVector(direction, distance), sphere.center);
   }
 
-  controls.addEventListener('start', () => { tween = null; });
+  const cancelTween = () => { tween = null; };
+  controls.addEventListener('start', cancelTween);
 
   // Picking.
   const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
@@ -335,8 +374,8 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
   let down = null;
   renderer.domElement.addEventListener('pointerdown', ev => {
     down = ev.isPrimary && ev.button === 0 ? {id: ev.pointerId, x: ev.clientX, y: ev.clientY} : null;
-  });
-  renderer.domElement.addEventListener('pointercancel', () => { down = null; });
+  }, {signal});
+  renderer.domElement.addEventListener('pointercancel', () => { down = null; }, {signal});
   renderer.domElement.addEventListener('pointerup', ev => {
     const start = down;
     down = null;
@@ -344,7 +383,7 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
     const id = nodeAt(ev);
     if (id) chooseNode(id);
     else { const e = edgeAt(ev); if (e) chooseNode(e.src, e, false, true); }
-  });
+  }, {signal});
   renderer.domElement.addEventListener('pointermove', ev => {
     if (down?.id === ev.pointerId && Math.hypot(ev.clientX - down.x, ev.clientY - down.y) > 4) down = null;
     if (ev.buttons) return;
@@ -353,18 +392,15 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
     renderer.domElement.style.cursor = id || edge ? 'pointer' : '';
     renderer.domElement.title = edge ? byId.get(edge.src).label + ' → ' + byId.get(edge.dst).label + ': ' + (edge.text || edge.type || edge.kind) : '';
     if (id !== state.hovered) { state.hovered = id; rebuildLabels(state.selected ? neighborhood(state.selected) : null); listeners.hover(id); }
-  });
+  }, {signal});
   renderer.domElement.addEventListener('dblclick', ev => {
     const id = nodeAt(ev);
     if (id) return focus(id);
     const hit = pick(ev, [points])[0];
     if (hit) flyTo(camera.position.clone().add(hit.point.clone().sub(controls.target)), hit.point.clone(), 450);
-  });
+  }, {signal});
 
-  // Render loop, paused while off screen.
-  let running = false, raf = 0;
-  function frame(now) {
-    raf = requestAnimationFrame(frame);
+  function render(now) {
     if (tween) {
       const k = Math.min(1, (now - tween.t0) / tween.ms), s = 1 - Math.pow(1 - k, 3);
       camera.position.lerpVectors(tween.e0, tween.e1, s); controls.target.lerpVectors(tween.g0, tween.g1, s);
@@ -374,16 +410,12 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
     renderer.render(scene, camera);
     placeLabels(container.clientWidth, container.clientHeight);
   }
-  new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting && !running) { running = true; raf = requestAnimationFrame(frame); }
-    else if (!entry.isIntersecting && running) { running = false; cancelAnimationFrame(raf); }
-  }).observe(container);
-  const resize = () => {
-    const w = container.clientWidth, h = container.clientHeight;
-    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
-  };
-  new ResizeObserver(resize).observe(container); resize();
-  const start = home(); camera.position.copy(start.eye); controls.target.copy(start.target); controls.update();
+  if (firstMap) {
+    const start = home();
+    camera.position.copy(start.eye);
+    controls.target.copy(start.target);
+    controls.update();
+  }
   const ui = graph ? graphControls(container, graph, trajectory) : null;
   const queryApiUrl = window.FUNCTIONAL_SLAM_API_URL || '/api/query';
   const usageApiUrl = queryApiUrl.replace(/\/api\/query$/, '/api/usage');
@@ -393,12 +425,12 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
   const committedEdges = edges.filter(edge => edge.status === 'committed');
 
   function refreshUsage() {
-    if (!ui) return;
-    const server = fetch(healthApiUrl, {cache: 'no-store'}).then(async response => {
+    if (!ui || signal.aborted) return;
+    const server = fetch(healthApiUrl, {cache: 'no-store', signal}).then(async response => {
       const payload = await response.json().catch(() => ({}));
       if (!response.ok || payload.status !== 'ok') throw new Error('서버 상태를 확인할 수 없습니다.');
     });
-    const usage = fetch(usageApiUrl, {cache: 'no-store'}).then(async response => {
+    const usage = fetch(usageApiUrl, {cache: 'no-store', signal}).then(async response => {
       const payload = await response.json().catch(() => ({}));
       if (!response.ok || !Number.isInteger(payload.used) || !Number.isInteger(payload.limit)) {
         throw new Error('사용량 응답을 확인할 수 없습니다.');
@@ -406,6 +438,7 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
       return payload;
     });
     Promise.allSettled([server, usage]).then(([serverResult, usageResult]) => {
+      if (signal.aborted) return;
       const connected = serverResult.status === 'fulfilled';
       ui.serverStatus.textContent = connected ? '백엔드 서버 연결됨' : '백엔드 서버 연결 안 됨';
       ui.serverStatus.dataset.state = connected ? 'up' : 'down';
@@ -416,7 +449,7 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
   }
 
   refreshUsage();
-  window.setInterval(refreshUsage, 30_000);
+  const usageTimer = ui ? window.setInterval(refreshUsage, 30_000) : null;
 
   function showSelection() {
     if (!ui) return;
@@ -563,6 +596,7 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
 
       fetch(queryApiUrl, {
         method: 'POST',
+        signal,
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(isDeepSeek ? {query: activeQuery, run: 'deepseek'} : {query: activeQuery}),
       }).then(async response => {
@@ -576,13 +610,13 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
         }
         return payload;
       }).then(payload => {
-        if (requestId !== queryRequest || activeQuery !== ui.input.value.trim()) return;
+        if (signal.aborted || requestId !== queryRequest || activeQuery !== ui.input.value.trim()) return;
         lunaMatches = resolveLunaGraphQuery(payload, nodes, committedEdges);
         lunaPending = false;
         updateGraph();
         if (queryNodes.size) frameMatches();
       }).catch(error => {
-        if (requestId !== queryRequest || activeQuery !== ui.input.value.trim()) return;
+        if (signal.aborted || requestId !== queryRequest || activeQuery !== ui.input.value.trim()) return;
         lunaFailure = error.message || 'API 오류';
         lunaPending = false;
         updateGraph();
@@ -612,7 +646,7 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
     ui.slider.addEventListener('input', () => {
       stopPlayback();
       seek(Number(ui.slider.value));
-    });
+    }, {signal});
     ui.play.addEventListener('click', () => {
       if (timer !== null) { stopPlayback(); return; }
       if (state.time === Infinity) seek(0);
@@ -621,16 +655,32 @@ export function createViewer(container, {cloud, trajectory, graph, loops, isDeep
         seek(Number(ui.slider.value) + 1);
         if (state.time === Infinity) stopPlayback();
       }, 380);
-    });
+    }, {signal});
     syncTimeline();
     const initialQuery = new URLSearchParams(window.location?.search).get('q');
     // Apply after the page selects its initial tree node.
-    if (initialQuery?.trim()) queueMicrotask(() => submitQuery(initialQuery));
+    if (initialQuery?.trim()) queueMicrotask(() => { if (!signal.aborted) submitQuery(initialQuery); });
   }
+  signal.addEventListener('abort', () => {
+    stopPlayback();
+    clearInterval(usageTimer);
+    controls.removeEventListener('start', cancelTween);
+    const geometries = new Set();
+    scene.traverse(object => {
+      if (object.geometry && object.parent?.type !== 'ArrowHelper') geometries.add(object.geometry);
+      object.material?.dispose();
+    });
+    for (const geometry of geometries) geometry.dispose();
+    inst.dispose();
+    labels.replaceChildren();
+    renderer.domElement.style.cursor = '';
+    renderer.domElement.title = '';
+    ui?.provenance.remove();
+  }, {once: true});
   rebuild();
 
   return {
-    radius,
+    render,
     onSelect(fn) { listeners.select = fn; },
     onEdgeSelect(fn) { listeners.edge = fn; },
     onTimeChange(fn) { listeners.time = fn; },

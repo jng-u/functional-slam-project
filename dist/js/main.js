@@ -1,65 +1,71 @@
 import {mountAnchorDemo} from './anchor.js';
 import {mountPosteriorDemo} from './posterior-ui.js';
-import {renderResults} from './project-page.js';
+import {renderResults} from './project-page.js?v=2';
 
 const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 const fmt = new Intl.NumberFormat('ko-KR');
 const ROLE_NAME = {O: '물체', C: '중간 부품', U: '조작 부위'};
 const ROLE_CSS = {O: '#d88c33', C: '#5a8ad6', U: '#2fc49c'};
-const params = new URLSearchParams(window.location.search);
-const isDeepSeek = params.get('run') === 'deepseek';
-const viewerOnly = params.get('view') === '3d';
-const dataPrefix = isDeepSeek ? 'data/deepseek/' : 'data/';
-const frameParam = params.get('frame');
-const requestedFrame = /^\d+$/.test(frameParam ?? '') ? Number(frameParam) : -1;
+const viewerOnly = new URLSearchParams(location.search).get('view') === '3d';
+const runLinks = [...$('run-selector').querySelectorAll('[data-run]')];
+const viewerBox = $('viewer');
+const runSection = $('run');
+const lunaRun = getJSON('data/run.json');
+const datasets = new Map();
+const visibleRoles = new Set(['O', 'C', 'U']);
+let requested, displayed, surface;
 
 if (!viewerOnly) {
   mountAnchorDemo();
   mountPosteriorDemo();
-  renderAblation();
+  lunaRun.then(renderResults).catch(() => { $('results-context').textContent = '재현 실행 기록을 불러오지 못했습니다.'; });
 }
-const lunaRun = getJSON('data/run.json');
-lunaRun.then(renderResults).catch(() => { $('results-context').textContent = '재현 실행 기록을 불러오지 못했습니다.'; });
-loadRun(isDeepSeek ? getJSON(dataPrefix + 'run.json') : lunaRun)
-  .catch(err => {
-    if (isDeepSeek) {
-      $('viewer').closest('.viewer-shell').hidden = true;
-      for (const id of ['inference', 'run-metrics', 'graph-explainer', 'timeline-limit']) $(id).hidden = true;
-      $('run-lede').textContent = 'DeepSeek 실행 데이터를 불러오지 못해 3D 지도와 2D 관측을 표시할 수 없습니다. (' + err.message + ')';
-      return;
-    }
-    $('run-lede').textContent = '실행 결과를 불러오지 못했습니다: ' + err.message;
-  });
 
-function renderAblation() {
-  const rows = [
-    ['Functional-SLAM', 64.55, 41.10, 16.5, true],
-    ['노드 안정화 제거', 52.11, 25.68, 19.0],
-    ['시간적 사후확률 제거', 64.08, 31.51, 17.9],
-    ['기능 루프 제거', 61.74, 35.96, 19.7],
-  ];
-  const groups = [['노드 R@3 (%) ↑ 높을수록 좋음', 1, 70, 2], ['삼중항 R@5 (%) ↑ 높을수록 좋음', 2, 45, 2], ['ATE RMSE (mm) ↓ 낮을수록 좋음', 3, 22, 1]];
-  const grid = el('div', 'abl-grid');
-  for (const [title, k, max, digits] of groups) {
-    const g = el('div'); g.append(el('h4', null, title));
-    for (const r of rows) {
-      const row = el('div', 'abl-row'); row.append(el('span', null, r[0]));
-      const bar = el('div', 'abl-bar' + (r[4] ? ' ours' : '')); bar.style.width = (78 * r[k] / max) + '%';
-      bar.append(el('span', null, r[k].toFixed(digits))); row.append(bar); g.append(row);
-    }
-    grid.append(g);
-  }
-  $('ablation').append(grid);
+function readSelection(url) {
+  const frame = url.searchParams.get('frame');
+  return {
+    run: url.searchParams.get('run') === 'deepseek' ? 'deepseek' : 'luna',
+    frame: /^\d+$/.test(frame ?? '') ? Number(frame) : null,
+  };
 }
+
+document.addEventListener('click', event => {
+  const link = event.target.closest('a[data-run]');
+  if (!link || event.defaultPrevented || event.button !== 0 ||
+      event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  const url = new URL(link.href);
+  if (url.href !== location.href) history.pushState(null, '', url);
+  const selection = readSelection(url);
+  const section = url.hash === '#inference' ? 'inference' : 'run';
+  const ready = showRun(selection, {keepTime: selection.frame === null});
+  if (!runSection.contains(document.activeElement)) runLinks.find(item => item.dataset.run === selection.run).focus({preventScroll: true});
+  if (section === 'inference') ready.then(() => {
+    if (url.href !== location.href) return;
+    const target = $('inference').hidden ? $('run') : $('inference');
+    target.scrollIntoView();
+    if (target.id === 'inference') $('inf-frame').focus({preventScroll: true});
+  });
+});
+
+window.addEventListener('popstate', () => showRun(readSelection(new URL(location.href))));
+const initialURL = new URL(location.href);
+showRun(readSelection(initialURL)).then(() => {
+  if (initialURL.href === location.href && initialURL.hash === '#inference' && !$('inference').hidden) {
+    $('inference').scrollIntoView();
+  }
+});
 
 async function getJSON(path) {
-  const res = await fetch(path); if (!res.ok) throw new Error(path + ' (' + res.status + ')');
+  const res = await fetch(path);
+  if (!res.ok) throw new Error(path + ' (' + res.status + ')');
   return res.json();
 }
 
-async function loadCloud(meta) {
-  const res = await fetch(dataPrefix + meta.file); if (!res.ok) throw new Error('점군 파일 (' + res.status + ')');
+async function loadCloud(path, meta) {
+  const res = await fetch(path + meta.file);
+  if (!res.ok) throw new Error('점군 파일 (' + res.status + ')');
   const buf = await res.arrayBuffer(), n = meta.count;
   if (buf.byteLength !== n * 9) throw new Error('점군 파일 크기가 기록과 다릅니다.');
   const q = new Int16Array(buf, 0, n * 3), positions = new Float32Array(n * 3);
@@ -69,54 +75,148 @@ async function loadCloud(meta) {
   return {positions, colors: new Uint8Array(buf, n * 6, n * 3)};
 }
 
-function resolveObservationUrl(url) {
-  return url?.startsWith('data/observations/') ? dataPrefix + url.slice('data/'.length) : url;
+function showRun(selection, {keepTime = false} = {}) {
+  const status = $('run-load-status');
+  const existing = [requested, displayed].find(item => item?.run === selection.run);
+  if (existing) {
+    requested = existing;
+    if (existing.requestedFrame !== selection.frame) {
+      existing.requestedFrame = selection.frame;
+      existing.selectFrame?.(selection.frame);
+    }
+    if (existing === displayed) {
+      status.textContent = '';
+      runSection.removeAttribute('aria-busy');
+    }
+    return existing.ready;
+  }
+
+  const current = {run: selection.run, requestedFrame: selection.frame};
+  requested = current;
+  if (displayed) {
+    const name = runLinks.find(link => link.dataset.run === current.run).textContent;
+    status.textContent = name + ' 지도를 준비하는 중입니다.';
+  }
+  runSection.setAttribute('aria-busy', 'true');
+  current.ready = getRunData(current.run).then(data => {
+    if (requested !== current) return;
+    current.currentFrame = keepTime ? displayed?.currentFrame ?? null : null;
+    surface ??= data.createViewer(viewerBox);
+    displayed?.controller.abort();
+    current.controller = new AbortController();
+    showMap(current, data);
+    displayed = current;
+    status.textContent = '';
+    if (!viewerOnly) {
+      getRunData(current.run === 'luna' ? 'deepseek' : 'luna').catch(() => {});
+    }
+  }).catch(error => {
+    if (requested !== current) return;
+    requested = displayed;
+    if (displayed) {
+      status.textContent = '선택한 지도를 불러오지 못했습니다. 다시 선택해 주세요.';
+    } else {
+      status.textContent = '3D 지도를 불러오지 못했습니다.';
+      viewerBox.querySelector('.viewer-wait')?.remove();
+      $('run-lede').textContent = '실행 결과를 불러오지 못했습니다. ' + error.message;
+      runLinks.find(link => link.dataset.run === current.run).hidden = false;
+    }
+  }).finally(() => {
+    if (requested === current || !requested || requested === displayed) {
+      runSection.removeAttribute('aria-busy');
+    }
+  });
+  return current.ready;
 }
 
-async function loadRun(manifest) {
-  const run = await manifest;
+function getRunData(key) {
+  if (!datasets.has(key)) {
+    datasets.set(key, loadRunData(key).catch(error => {
+      datasets.delete(key);
+      throw error;
+    }));
+  }
+  return datasets.get(key);
+}
+
+async function loadRunData(key) {
+  const isDeepSeek = key === 'deepseek';
+  const path = isDeepSeek ? 'data/deepseek/' : 'data/';
+  const run = await (isDeepSeek ? getJSON(path + 'run.json') : lunaRun);
+  const observation = url => url?.startsWith('data/observations/') ? path + url.slice('data/'.length) : url;
   const frames = (run.frames ?? []).map(frame => ({
     ...frame,
-    url: resolveObservationUrl(frame.url),
-    segmentation_url: resolveObservationUrl(frame.segmentation_url),
+    url: observation(frame.url),
+    segmentation_url: observation(frame.segmentation_url),
   }));
-  const frameIndex = frames[requestedFrame] ? requestedFrame : null;
-  const graph = run.graph ? await getJSON(dataPrefix + run.graph) : null;
-  describeRun(run, graph);
-  if (run.inference && !viewerOnly) {
-    const [{mountInference}, inference] = await Promise.all([import('./inference.js'), getJSON(dataPrefix + run.inference)]);
-    mountInference(inference, frames, {hasGraph: !!graph});
-    if (frameIndex !== null && inference.frames[frameIndex]) {
-      const slider = $('inf-frame');
-      slider.value = frameIndex;
-      slider.dispatchEvent(new Event('input'));
-    }
+  const [graph, cloud, {createViewer}, perception] = await Promise.all([
+    run.graph ? getJSON(path + run.graph) : null,
+    loadCloud(path, run.map),
+    import('./viewer.js?v=3'),
+    run.inference && !viewerOnly
+      ? Promise.all([import('./inference.js?v=2'), getJSON(path + run.inference)]) : null,
+  ]);
+  return {run, frames, graph, cloud, createViewer, perception, isDeepSeek};
+}
+
+function showMap(current, {run, frames, graph, cloud, perception, isDeepSeek}) {
+  const {signal} = current.controller;
+  for (const link of runLinks) {
+    if (link.dataset.run === current.run) {
+      link.hidden = false;
+      link.setAttribute('aria-current', 'true');
+    } else link.removeAttribute('aria-current');
   }
-  const cloud = await loadCloud(run.map);
-  const {createViewer} = await import('./viewer.js');
-  const viewer = createViewer($('viewer'), {cloud, trajectory: run.trajectory, graph, loops: run.loops, isDeepSeek});
-  wireViewer(viewer, frames, graph, frameIndex);
+  for (const id of ['role-filter', 'graph-query', 'tree', 'tree-count', 'detail', 'run-metrics', 'run-meta-body']) $(id).replaceChildren();
+  for (const id of ['inference', 'timeline', 'loop-run']) $(id).hidden = true;
+  $('graph-query').classList.remove('graph-query');
+
+  describeRun(run, graph);
   if (run.loops && graph) describeLoops(run.loops);
-  document.dispatchEvent(new Event('fslam:viewer-ready'));
+  if (perception) {
+    const [{mountInference}, inference] = perception;
+    mountInference(inference, frames, {hasGraph: !!graph, signal});
+  }
+
+  const viewer = surface.showMap({cloud, trajectory: run.trajectory, graph, loops: run.loops, isDeepSeek, signal});
+  const requestedFrame = frames[current.requestedFrame] ? current.requestedFrame : null;
+  wireViewer(viewer, frames, graph, requestedFrame, signal, time => {
+    current.currentFrame = time === Infinity ? null : run.trajectory.find(k => k.kf === time)?.frame ?? null;
+  });
+  const setTimeForFrame = frame => {
+    const keyframe = frame === null ? undefined : run.trajectory.findLast(k => k.frame <= frame);
+    viewer.setTime(frame === null || frame === frames.length - 1 ? Infinity : keyframe?.kf ?? 0);
+    current.currentFrame = frame;
+  };
+  current.selectFrame = frame => {
+    const index = frames[frame] ? frame : null;
+    setTimeForFrame(index);
+    if (index !== null && perception?.[1].frames[index]) {
+      $('inf-frame').value = index;
+      $('inf-frame').dispatchEvent(new Event('input'));
+    }
+  };
+  current.selectFrame(requestedFrame ?? current.currentFrame);
+  $('run-meta').hidden = false;
 }
 
 function describeLoops(loops) {
-  const box = $('loop-run'); if (!box) return;
+  const box = $('loop-run');
   const searched = loops.events.length, withFn = loops.events.filter(e => e.proposed.length).length;
   box.hidden = false;
-  box.textContent = '이 사이트의 실행에서는 루프 검색이 ' + searched + '번 일어났습니다. 영상 검색이 낸 후보는 ' + loops.visual_candidates + '개였고, 기능 그래프가 ' + withFn + '번의 검색에서 후보 ' + loops.functional_proposed + '개를 보탰으며, 그중 ' + loops.functional_accepted + '개가 기하 검증을 통과해 최적화에 들어갔습니다.' + (loops.functional_accepted ? ' 아래 3D 지도에서 분홍 점선이 그 연결입니다.' : '');
+  box.textContent = `루프 검색 ${searched}회에서 영상 후보 ${loops.visual_candidates}개가 나왔습니다. 기능 그래프는 ${withFn}회에 걸쳐 후보 ${loops.functional_proposed}개를 보탰고, 그중 ${loops.functional_accepted}개가 기하 검증을 통과했습니다.`
+    + (loops.functional_accepted ? ' 통과한 연결은 3D 지도에 분홍 점선으로 표시합니다.' : '');
 }
 
 function describeRun(run, graph) {
   $('graph-explainer').hidden = !graph;
-  $('timeline-limit').hidden = !graph;
   const lede = $('run-lede');
-  const llm = run.llm?.model ? '이 실행의 지도 생성에 사용한 언어 모델은 ' + run.llm.model + '입니다.' : '';
+  const llm = run.llm?.model ? ' · ' + run.llm.model : '';
   lede.textContent = graph
-    ? 'FunGraph3D 0kitchen/video0의 RGB ' + run.frames_processed + '장을 Functional-SLAM 구현과 논문 설정(fungraph_eval_node_place.yaml)으로 처리했습니다. SAM3를 포함한 실행의 3D 노드와 확정 연결을 아래 지도에서 탐색할 수 있습니다. 노드와 연결은 online_functional_graph.json 출력이며, 정답이나 실제 조작 검증을 뜻하지 않습니다. ' + llm
+    ? `FunGraph3D 0kitchen/video0 · RGB ${run.frames_processed}장${llm}`
     : run.inference
-      ? 'FunGraph3D 0kitchen/video0의 RGB ' + run.frames_processed + '장을 처리했습니다. 내보낸 3D 기능 그래프가 없어 점군, 카메라 경로와 2D 추론 기록을 표시합니다. ' + llm
-      : '이 실행에서 내보낸 점군과 카메라 경로를 표시합니다. 3D 기능 그래프 출력은 없습니다. ' + llm;
+      ? '이 실행은 점군, 카메라 경로와 2D 추론 기록을 제공합니다.' + llm
+      : '이 실행은 점군과 카메라 경로를 제공합니다.' + llm;
   const m = $('run-metrics');
   const add = (value, label, cls = '') => { const d = el('div', cls); d.append(el('b', null, value), el('span', null, label)); m.append(d); };
   if (graph) {
@@ -132,21 +232,24 @@ function describeRun(run, graph) {
   meta.append(dl, pre);
 }
 
-function wireViewer(viewer, frames, graph, frameIndex) {
-  const roles = new Set(['O', 'C', 'U']);
+function wireViewer(viewer, frames, graph, frameIndex, signal, rememberTime) {
+  const roles = visibleRoles;
   const chipBox = $('role-filter');
   for (const r of ['O', 'C', 'U']) {
-    const b = el('button'); b.type = 'button'; b.setAttribute('aria-pressed', 'true');
+    const b = el('button'); b.type = 'button'; b.setAttribute('aria-pressed', String(roles.has(r)));
     const dot = el('i'); dot.style.background = ROLE_CSS[r]; b.append(dot, document.createTextNode(r + ' ' + ROLE_NAME[r]));
     b.addEventListener('click', () => { roles.has(r) ? roles.delete(r) : roles.add(r); b.setAttribute('aria-pressed', String(roles.has(r))); viewer.setRoles(new Set(roles)); });
     chipBox.append(b);
   }
-  if (!graph) chipBox.hidden = true;
-  $('show-cloud').addEventListener('change', e => viewer.setCloud(e.target.checked));
-  $('show-traj').addEventListener('change', e => viewer.setTrajectory(e.target.checked));
-  $('point-size').addEventListener('input', e => viewer.setPointSize(Number(e.target.value)));
+  chipBox.hidden = !graph;
+  viewer.setRoles(new Set(roles));
+  $('show-cloud').addEventListener('change', e => viewer.setCloud(e.target.checked), {signal});
+  $('show-traj').addEventListener('change', e => viewer.setTrajectory(e.target.checked), {signal});
+  $('point-size').addEventListener('input', e => viewer.setPointSize(Number(e.target.value)), {signal});
+  viewer.setCloud($('show-cloud').checked);
+  viewer.setTrajectory($('show-traj').checked);
   viewer.setPointSize(Number($('point-size').value));
-  $('view-reset').addEventListener('click', () => viewer.reset());
+  $('view-reset').addEventListener('click', () => viewer.reset(), {signal});
   if (!graph) {
     if (frameIndex !== null) showFrame();
     else $('detail').append(el('p', 'empty', '기능 그래프가 생성되면 노드를 눌러 실제 관측 사진과 연결 근거를 볼 수 있습니다.'));
@@ -201,6 +304,7 @@ function wireViewer(viewer, frames, graph, frameIndex) {
   });
   let showingFinal = true;
   viewer.onTimeChange(time => {
+    rememberTime(time);
     const final = time === Infinity;
     if (final === showingFinal) return;
     showingFinal = final;

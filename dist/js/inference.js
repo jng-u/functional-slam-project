@@ -23,13 +23,15 @@ function vocabulary(catalog, targets) {
   return names;
 }
 
-export function mountInference(data, frames, {hasGraph = false} = {}) {
+export function mountInference(data, frames, {hasGraph = false, signal} = {}) {
   const box = $('inference'); box.hidden = false;
   const catalog = new Map(data.objects.map(o => [o.object, o]));
   const added = Object.entries(data.first_frame);
-  $('inf-lede').textContent = '공식 코드의 첫 단계 출력입니다. RAM++가 사진마다 태그를 붙이면, 언어 모델이 그 태그를 보고 어떤 물체(O)의 어떤 부품(C)과 조작 부위(U)를 찾을지, 서로 어떤 관계인지 추론합니다. 장면은 '
-    + (data.scene.locked_at_frame + 1) + '번째 프레임에서 ' + data.scene.scene_type + '(으)로 고정됐고, 이때 만든 장면 기능 사전(물체 ' + data.atlas_objects.length + '개)은 모든 프레임에 공통으로 들어갑니다. '
-    + '사전에 없는 태그가 나오면 그 프레임에서 대상을 추가합니다. 오른쪽 도식은 SAM3에 넘긴 탐색 대상과 언어 모델의 관계 후보입니다. ' + (hasGraph ? '실제 SAM3 오버레이는 2D 프레임 관측이며, 위 3D 지도의 확정 연결과 다를 수 있습니다. ' : '3D 그래프가 없는 사전 추론(prewarm) 결과입니다. ') + '서로 다른 캐시 응답 ' + (data.llm_calls ?? '기록 없음') + '개. API 호출 횟수가 아닙니다.';
+  $('inf-lede').textContent = hasGraph
+    ? '사진은 SAM3의 2D 관측입니다. 도식에는 언어 모델이 고른 탐색 대상과 관계 후보를 표시합니다.'
+    : '사전 추론에서 찾은 대상과 관계 후보입니다.';
+  const scene = data.scene;
+  $('inf-meta').textContent = `장면 분류는 ${scene.locked_at_frame + 1}번째 프레임에서 ${scene.scene_type}으로 확정됐습니다. 장면 사전의 물체 ${data.atlas_objects.length}개를 모든 프레임에서 탐색하고, 프레임 태그를 보고 대상을 추가합니다. 캐시의 고유 응답 수는 ${data.llm_calls ?? '기록 없음'}입니다.`;
 
   // Concrete kitchen objects that RAM++ saw but the language model never turned into targets.
   const watch = ['cabinet', 'drawer', 'dish_washer', 'oven', 'stove', 'exhaust_hood', 'kettle', 'washer', 'toaster', 'blender', 'door', 'coffee_machine', 'refrigerator', 'microwave', 'faucet'];
@@ -44,19 +46,19 @@ export function mountInference(data, frames, {hasGraph = false} = {}) {
   });
   const missed = [...seen].filter(([t]) => !targeted.has(t)).sort((a, b) => b[1] - a[1]);
   $('inf-note').textContent = (missed.length
-    ? 'RAM++ 태그에는 ' + missed.map(([t, n]) => t.replace(/_/g, ' ') + ' ' + n + '장').join(', ') + ' 태그가 관측됐지만 내보낸 탐색 대상 이름과 일치하지 않았습니다. 이는 이름 비교이며, 검출 실패나 특정 모델의 한계를 입증하지 않습니다. '
+    ? '탐색 대상과 이름이 일치하지 않은 RAM++ 태그는 ' + missed.map(([t, n]) => t.replace(/_/g, ' ') + ' ' + n + '장').join(', ') + '입니다. '
     : '')
     + '프레임 태그에서 새로 추가된 대상: ' + added.map(([o, i]) => o + '(' + (i + 1) + '번째)').join(', ') + '.';
 
   const slider = $('inf-frame'); slider.max = data.frames.length - 1;
   const pick = added.length ? added[added.length - 1][1] : 0;
   slider.value = pick;
-  slider.addEventListener('input', () => show(Number(slider.value)));
-  $('inf-prev').addEventListener('click', () => { slider.value = Math.max(0, Number(slider.value) - 1); show(Number(slider.value)); });
-  $('inf-next').addEventListener('click', () => { slider.value = Math.min(data.frames.length - 1, Number(slider.value) + 1); show(Number(slider.value)); });
+  slider.addEventListener('input', () => show(Number(slider.value)), {signal});
+  $('inf-prev').addEventListener('click', () => { slider.value = Math.max(0, Number(slider.value) - 1); show(Number(slider.value)); }, {signal});
+  $('inf-next').addEventListener('click', () => { slider.value = Math.min(data.frames.length - 1, Number(slider.value) + 1); show(Number(slider.value)); }, {signal});
   let mode = 'sam3';
-  $('inf-sam3').addEventListener('click', () => { mode = 'sam3'; show(Number(slider.value)); });
-  $('inf-photo').addEventListener('click', () => { mode = 'photo'; show(Number(slider.value)); });
+  $('inf-sam3').addEventListener('click', () => { mode = 'sam3'; show(Number(slider.value)); }, {signal});
+  $('inf-photo').addEventListener('click', () => { mode = 'photo'; show(Number(slider.value)); }, {signal});
   show(pick);
 
   function show(i) {
@@ -66,10 +68,10 @@ export function mountInference(data, frames, {hasGraph = false} = {}) {
     $('inf-sam3').disabled = !overlay;
     $('inf-sam3').setAttribute('aria-pressed', String(useOverlay));
     $('inf-photo').setAttribute('aria-pressed', String(!useOverlay));
-    $('inf-image-state').textContent = (useOverlay ? '실제 SAM3 출력 · 마스크·라벨·프레임 내 관계 (2D 관측)' : overlay ? '원본 RGB 사진' : '이 프레임의 SAM3 오버레이가 없어 원본 RGB 사진을 표시합니다.') + ' · ' + (frame?.name || '프레임 정보 없음');
+    $('inf-image-state').textContent = (useOverlay ? 'SAM3 마스크와 라벨' : overlay ? '원본 RGB 사진' : 'SAM3 기록 없음 · 원본 사진') + ' · ' + (frame?.name || '프레임 정보 없음');
     const image = document.createElement('img'); image.alt = $('inf-image-state').textContent;
     image.src = (useOverlay ? frame.segmentation_url : frame?.url) || '';
-    image.addEventListener('error', () => { $('inf-img').replaceChildren(document.createTextNode('이미지를 불러오지 못했습니다. 원본 사진 또는 다른 프레임을 선택하세요.')); });
+    image.addEventListener('error', () => { $('inf-img').replaceChildren(document.createTextNode('이미지를 불러오지 못했습니다. 원본 사진 또는 다른 프레임을 선택하세요.')); }, {signal});
     $('inf-img').replaceChildren(image);
     $('inf-img').setAttribute('aria-label', image.alt);
     $('inf-out').textContent = (i + 1) + ' / ' + data.frames.length + (f.added.length ? ' · 대상 추가' : '');
@@ -139,6 +141,6 @@ export function mountInference(data, frames, {hasGraph = false} = {}) {
       edges.append(svg('text', {x: bend - 10, y: (ya + yb) / 2 + 4, class: 'lab', 'text-anchor': 'end'}, cut(rel, 18)));
     }
     root.setAttribute('viewBox', '0 0 790 ' + (y + 4));
-    $('inf-svg-cap').textContent = '노드나 선 위에 마우스를 올리면 관계 문구를 볼 수 있습니다. 이름과 관계 문구는 모델이 낸 영어 원문 그대로입니다.';
+    $('inf-svg-cap').textContent = '노드나 선에 마우스를 올리면 관계 원문을 볼 수 있습니다.';
   }
 }

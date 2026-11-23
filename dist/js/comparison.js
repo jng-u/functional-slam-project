@@ -27,36 +27,51 @@ const number = (value, digits = 0) => Number.isFinite(value)
   ? value.toLocaleString('ko-KR', {minimumFractionDigits: digits, maximumFractionDigits: digits})
   : '미측정';
 
-const fields = [
-  ['처리한 프레임', x => x.run.frames_processed],
+const displayedEdges = (x, kind) => x.graph.edges.filter(e => e.kind === kind).length;
+
+const graphFields = [
+  ['3D 노드 수', x => x.graph.nodes.length],
+  ['확정 로컬 연결', x => displayedEdges(x, 'local')],
+  ['확정 원격 연결', x => displayedEdges(x, 'remote')],
+  ['기능 루프 후보 (검증 통과 / 제안)', x => {
+    const loops = x.run.loops;
+    return loops ? number(loops.functional_accepted) + ' / ' + number(loops.functional_proposed) : '미측정';
+  }],
+];
+
+const performanceFields = [
+  ['처리 프레임', x => x.run.frames_processed],
   ['실행 시간 (초)', x => x.summary.wall_seconds, 1],
   ['처리 속도 (FPS)', x => x.run.fps, 3],
-  ['시작할 때 LLM 캐시', x => ({cold: '비어 있음', reused: '이전 실행 응답 재사용'})[x.run.llm?.cache_mode]],
+  ['시작 시 LLM 캐시', x => ({cold: '비어 있음', reused: '이전 응답 재사용'})[x.run.llm?.cache_mode]],
   ['모델 추론 설정', x => ({low: '낮음 (low)', none: '끄기 (none)'})[x.run.llm?.reasoning_effort]],
   ['GPU', x => x.run.gpu],
   ['키프레임', x => x.run.keyframes],
-  ['내보낸 점군의 점', x => x.run.map.count],
-  ['기준 자세와 일치한 키프레임', x => x.run.accuracy?.matched_keyframes],
+  ['점군 점 수', x => x.run.map.count],
+  ['기준 자세와 매칭된 키프레임', x => x.run.accuracy?.matched_keyframes],
   ['ATE RMSE · Sim(3) (mm)', x => x.run.accuracy?.sim3?.ate_rmse_mm, 2],
   ['ATE RMSE · SE(3) (mm)', x => x.run.accuracy?.se3?.ate_rmse_mm, 2],
   ['Sim(3) 정렬 스케일', x => x.run.accuracy?.sim3?.scale, 4],
   ['노드 Recall@3 (%)', x => x.run.accuracy?.node_recall_at_3, 2],
+];
+
+const detailFields = [
   ['장면 분류', x => x.inference.scene?.scene_type],
   ['장면 분류 신뢰도', x => x.inference.scene?.confidence, 2],
-  ['장면을 확정한 프레임', x => {
+  ['장면 확정 프레임', x => {
     const i = x.inference.scene?.locked_at_frame;
     return Number.isInteger(i) && i >= 0 ? i + 1 : null;
   }],
-  ['장면 사전의 물체', x => x.inference.atlas_objects.length],
-  ['장면 사전의 원격 관계 후보', x => x.inference.atlas_remote.length],
-  ['프레임 태그에서 추가한 대상 종류', x => Object.keys(x.inference.first_frame).length],
-  ['서로 다른 로컬 캐시 응답', x => x.inference.llm_calls],
+  ['장면 사전 물체', x => x.inference.atlas_objects.length],
+  ['장면 사전 원격 관계 후보', x => x.inference.atlas_remote.length],
+  ['태그로 추가한 대상 종류', x => Object.keys(x.inference.first_frame).length],
+  ['로컬 캐시의 고유 응답', x => x.inference.llm_calls],
   ['SAM3 해상도 설정', x => x.summary.sam3.resolution],
-  ['SAM3 검출이 있는 프레임', x => x.summary.sam3.frames_with_detections],
+  ['SAM3 검출 프레임', x => x.summary.sam3.frames_with_detections],
   ['SAM3 검출 합계', x => x.summary.sam3.detections],
   ['추적한 3D 노드', x => x.graph.summary.tracked_nodes],
-  ['위치가 있는 노드', x => x.graph.summary.posed_nodes],
-  ['위치가 없는 노드', x => x.graph.summary.unposed_nodes],
+  ['위치 있는 노드', x => x.graph.summary.posed_nodes],
+  ['위치 없는 노드', x => x.graph.summary.unposed_nodes],
   ['내보내기에서 숨긴 노드', x => x.graph.summary.hidden_nodes],
   ...[['O', '물체'], ['C', '중간 부품'], ['U', '조작 부위']].map(([role, label]) =>
     [label + ' (' + role + ') · 추적 / 3D 표시', x => {
@@ -66,22 +81,22 @@ const fields = [
   ...['local', 'remote'].flatMap(kind => {
     const label = kind === 'local' ? '로컬' : '원격';
     return [
-      [label + ' 연결 · 3D 표시', x => x.graph.edges.filter(e => e.kind === kind).length],
+      [label + ' 연결 · 3D 표시', x => displayedEdges(x, kind)],
       [label + ' 연결 · 확정', x => x.graph.summary.edge_status_counts[kind + '_committed'] ?? 0],
       [label + ' 연결 · 잠정', x => x.graph.summary.edge_status_counts[kind + '_tentative'] ?? 0],
     ];
   }),
   ['루프 검색 횟수', x => x.run.loops?.events.length],
   ['영상 검색 후보', x => x.run.loops?.visual_candidates],
-  ['기능 그래프가 보탠 루프 후보', x => x.run.loops?.functional_proposed],
-  ['기하 검증을 통과한 추가 후보', x => x.run.loops?.functional_accepted],
-  ['기능으로 보강한 기존 후보', x => x.run.loops?.functional_strengthened],
-  ['이 실행의 새 LLM 응답', x => x.summary.api_usage?.successful_responses],
+  ['기능 루프 후보 제안', x => x.run.loops?.functional_proposed],
+  ['제안 후보 중 기하 검증 통과', x => x.run.loops?.functional_accepted],
+  ['기능으로 보강한 후보', x => x.run.loops?.functional_strengthened],
+  ['새 LLM 응답', x => x.summary.api_usage?.successful_responses],
   ['새 응답의 입력 토큰', x => x.summary.api_usage?.prompt_tokens],
   ['새 응답의 출력 토큰', x => x.summary.api_usage?.completion_tokens],
   ['새 응답의 전체 토큰', x => x.summary.api_usage?.total_tokens],
-  ['캐시를 준비한 이전 요청의 응답 수', x => x.summary.reused_api_usage?.successful_responses],
-  ['캐시를 준비한 이전 요청의 토큰', x => x.summary.reused_api_usage?.total_tokens],
+  ['캐시 생성에 쓴 응답 수', x => x.summary.reused_api_usage?.successful_responses],
+  ['캐시 생성에 쓴 토큰 수', x => x.summary.reused_api_usage?.total_tokens],
 ];
 
 function table(label, rows) {
@@ -155,18 +170,16 @@ function localTargets(objects, labels) {
   return tally(rows);
 }
 
-function runURL(x, frame = null, view = null) {
+function observationLink(x, frame) {
   const url = new URL('./', location.href);
-  if (x.base !== 'data/') url.searchParams.set('run', 'deepseek');
-  if (frame !== null) url.searchParams.set('frame', String(frame));
-  if (view) url.searchParams.set('view', view);
-  url.hash = 'run';
-  return url;
-}
-
-function runLink(x, frame = null) {
-  const a = el('a', frame === null ? x.name + ' 3D 그래프 열기' : '이 프레임의 전체 관측 열기');
-  a.href = runURL(x, frame).href;
+  const run = x.base === 'data/' ? 'luna' : 'deepseek';
+  if (run === 'deepseek') url.searchParams.set('run', run);
+  url.searchParams.set('frame', String(frame));
+  url.hash = 'inference';
+  const a = el('a', '관측 자세히');
+  a.href = url.href;
+  a.dataset.run = run;
+  a.setAttribute('aria-label', x.name + ' 프레임 관측 자세히');
   return a;
 }
 
@@ -189,7 +202,7 @@ function loopCandidates(x, frame) {
 }
 
 function frameControl(frames, initial) {
-  const label = el('label', '입력 프레임 ');
+  const label = el('label', '프레임 ');
   const slider = el('input');
   slider.type = 'range';
   slider.min = 0;
@@ -198,10 +211,22 @@ function frameControl(frames, initial) {
   label.append(slider);
   const frameName = el('output');
   const controls = el('div', null, 'compare-frame-controls');
-  controls.append(label, frameName);
+  const prev = el('button', '이전', 'compare-button');
+  const next = el('button', '다음', 'compare-button');
+  prev.type = next.type = 'button';
+  controls.append(label, prev, next, frameName);
+  for (const [button, delta] of [[prev, -1], [next, 1]]) {
+    button.addEventListener('click', () => {
+      slider.value = Number(slider.value) + delta;
+      slider.dispatchEvent(new Event('input'));
+    });
+  }
   const announce = () => {
     const i = Number(slider.value);
     frameName.textContent = i + 1 + ' / ' + frames.length + ' · ' + frames[i].name;
+    slider.setAttribute('aria-valuetext', frameName.textContent);
+    prev.disabled = i === 0;
+    next.disabled = i === frames.length - 1;
   };
   slider.addEventListener('input', announce);
   announce();
@@ -216,10 +241,10 @@ function frameBrowser(left, right) {
   const photo = el('input');
   photo.type = 'checkbox';
   photoToggle.prepend(photo);
-  const images = el('div', null, 'compare-media');
+  const images = el('div', null, 'compare-media compare-stills');
   const info = el('div');
-  const local = el('div');
-  box.append(controls, photoToggle, images, info, disclosure('이 프레임의 O/C/U 관계 문구', local));
+  const details = el('div', null, 'compare-frame-details');
+  box.append(controls, photoToggle, images, info, disclosure('프레임 태그와 관계 후보', details));
 
   const paint = () => {
     const i = Number(slider.value);
@@ -231,17 +256,16 @@ function frameBrowser(left, right) {
       const mask = !photo.checked && f.segmentation_url;
       img.src = imageURL(x, mask || f.url);
       img.alt = x.name + ' · ' + (mask ? 'SAM3 검출' : '원본 RGB') + ' · ' + filename;
-      const caption = el('figcaption', img.alt, 'project-caption');
-      fig.append(img, caption, runLink(x, i));
+      const caption = el('figcaption', x.name, 'project-caption');
+      if (!photo.checked && !mask) caption.append(' · 원본 RGB');
+      caption.append(' · ', observationLink(x, i));
+      fig.append(img, caption);
       images.append(fig);
     }
     const list = values => values?.join(', ') || '없음';
+    const rows = fields => fields.map(([key, value]) => [key, value(left), right ? value(right) : '—']);
     const frameFields = [
-      ['RAM++ 태그', x => list(x.inference.frames[i]?.tags)],
-      ['SAM3에 넘긴 탐색 대상', x => list(x.inference.frames[i]?.targets)],
-      ['이 프레임에서 추가된 대상', x => list(x.inference.frames[i]?.added)],
-      ['원격 관계 후보', x => list(x.inference.frames[i]?.remote?.map(([a, b, text]) => a + ' → ' + b + (text ? ' · ' + text : '')))],
-      ['SAM3 검출 · 라벨별 수', x => {
+      ['SAM3 라벨별 검출 수', x => {
         const counts = x.summary.sam3.by_frame?.[i];
         return counts ? list(Object.entries(counts).map(([k, n]) => k + ' ' + n)) : '미측정';
       }],
@@ -251,9 +275,18 @@ function frameBrowser(left, right) {
       }],
       ['루프 후보와 검증 결과', x => loopCandidates(x, i)],
     ];
-    info.replaceChildren(table('프레임별 결과', frameFields.map(([key, value]) => [key, value(left), right ? value(right) : '—'])));
+    info.replaceChildren(table('프레임별 결과', rows(frameFields)));
+    const targetFields = [
+      ['RAM++ 태그', x => list(x.inference.frames[i]?.tags)],
+      ['SAM3 탐색 대상', x => list(x.inference.frames[i]?.targets)],
+      ['추가 탐색 대상', x => list(x.inference.frames[i]?.added)],
+      ['원격 관계 후보', x => list(x.inference.frames[i]?.remote?.map(([a, b, text]) => a + ' → ' + b + (text ? ' · ' + text : '')))],
+    ];
     const targets = x => localTargets(x.inference.objects, x.inference.frames[i]?.targets ?? []);
-    local.replaceChildren(countsTable('탐색 관계 후보', targets(left), right && targets(right)));
+    details.replaceChildren(
+      table('프레임별 탐색 대상', rows(targetFields)),
+      countsTable('로컬 관계 후보', targets(left), right && targets(right)),
+    );
   };
   slider.addEventListener('input', paint);
   photo.addEventListener('change', paint);
@@ -262,7 +295,8 @@ function frameBrowser(left, right) {
 }
 
 function videos(left, right) {
-  const wrap = el('div', null, 'compare-media');
+  const panel = el('div');
+  const wrap = el('div', null, 'compare-media compare-clips');
   const clips = [];
   for (const x of [left, right]) {
     const fig = el('figure');
@@ -286,84 +320,52 @@ function videos(left, right) {
     for (const clip of clips) clip.currentTime = 0;
     Promise.all(clips.map(clip => clip.play())).catch(() => {
       for (const clip of clips) clip.pause();
-      status.textContent = '두 영상을 함께 재생하지 못했습니다. 각 영상의 재생 버튼을 사용해 보세요.';
+      status.textContent = '동시 재생에 실패했습니다. 각 영상에서 재생하세요.';
     });
   });
-  return disclosure('실행 영상 두 편 보기', play, status, wrap);
+  panel.append(play, status, wrap);
+  return panel;
 }
 
-function pairedViewers(left, right) {
-  const wrap = el('div', null, 'compare-media compare-map');
-  const frames = left.run.frames;
-  const {slider, controls} = frameControl(frames, frames.length - 1);
-  const panes = new Map();
-  const search = el('form', null, 'compare-search');
-  search.setAttribute('role', 'search');
-  const queryLabel = el('label', '두 지도에서 기능 찾기');
-  const query = el('input');
-  query.type = 'search';
-  query.placeholder = '예: 물 틀어줘';
-  query.maxLength = 500;
-  query.required = true;
-  queryLabel.append(query);
-  const submit = el('button', '두 지도에 검색');
-  submit.type = 'submit';
-  submit.disabled = true;
-  search.append(queryLabel, submit);
-  const queryForms = () => Array.from(panes.values(), pane => pane.contentDocument?.querySelector('.graph-query-form'));
-  const updateSearch = () => { submit.disabled = queryForms().filter(Boolean).length !== 2; };
-  search.addEventListener('submit', event => {
-    event.preventDefault();
-    if (!query.value.trim()) return;
-    for (const form of queryForms().filter(Boolean)) {
-      form.querySelector('input[type=search]').value = query.value;
-      form.requestSubmit();
-    }
-  });
-  function seek(x, iframe) {
-    const timeline = iframe.contentDocument?.getElementById('timeline');
-    if (!timeline || timeline.hidden) return;
-    const input = timeline.querySelector('input');
-    const frame = Number(slider.value);
-    const step = x.run.trajectory.findLast(k => k.frame <= frame)?.kf ?? 0;
-    input.value = frame === frames.length - 1 ? input.max : step;
-    input.dispatchEvent(new iframe.contentWindow.Event('input'));
+function visualComparison(left, right) {
+  const box = el('div', null, 'compare-visual');
+  box.append(el('h4', right ? '프레임·영상 비교' : '프레임 관측'));
+  const frames = frameBrowser(left, right);
+  if (!right) {
+    box.append(frames);
+    return box;
   }
-  slider.addEventListener('input', () => {
-    for (const [x, iframe] of panes) seek(x, iframe);
-  });
-  const detail = disclosure('3D 점군·카메라 경로·기능 그래프 나란히 열기',
-    el('p', '위치는 각 실행의 최종 좌표를 사용합니다. 공통 프레임을 고르면 해당 시점까지의 노드와 확정 관계를 두 지도에 표시합니다.', 'project-caption'),
-    controls, search, wrap);
-  detail.addEventListener('toggle', () => {
-    wrap.replaceChildren();
-    panes.clear();
-    updateSearch();
-    if (!detail.open) return;
-    for (const x of [left, right]) {
-      const figure = el('figure');
-      const iframe = el('iframe');
-      iframe.title = x.name + ' 3D 그래프';
-      iframe.src = runURL(x, null, '3d').href;
-      iframe.addEventListener('load', () => {
-        const ready = () => { seek(x, iframe); updateSearch(); };
-        iframe.contentDocument?.addEventListener('fslam:viewer-ready', ready, {once: true});
-        ready();
-      });
-      panes.set(x, iframe);
-      figure.append(el('figcaption', x.name, 'project-caption'), iframe);
-      wrap.append(figure);
-    }
-  });
-  return detail;
+
+  const clips = videos(left, right);
+  const controls = el('div', null, 'view-switch');
+  controls.setAttribute('role', 'group');
+  controls.setAttribute('aria-label', '실행 비교 보기');
+  const frameButton = el('button', '프레임');
+  const videoButton = el('button', '영상');
+  frames.id = 'compare-frames';
+  clips.id = 'compare-videos';
+  for (const [button, panel] of [[frameButton, frames], [videoButton, clips]]) {
+    button.type = 'button';
+    button.setAttribute('aria-controls', panel.id);
+    button.addEventListener('click', () => show(panel === frames));
+  }
+  function show(showFrames) {
+    frames.hidden = !showFrames;
+    clips.hidden = showFrames;
+    frameButton.setAttribute('aria-pressed', String(showFrames));
+    videoButton.setAttribute('aria-pressed', String(!showFrames));
+    if (showFrames) clips.querySelectorAll('video').forEach(video => video.pause());
+  }
+  show(true);
+  controls.append(frameButton, videoButton);
+  box.append(controls, frames, clips);
+  return box;
 }
 
 export async function mountComparison() {
   const status = document.getElementById('compare-status');
   const content = document.getElementById('compare-content');
   const selector = document.getElementById('run-selector');
-  const selectedRun = new URLSearchParams(location.search).get('run');
-  selector.querySelectorAll('a')[selectedRun === 'deepseek' ? 1 : 0].setAttribute('aria-current', 'true');
   try {
     const [baseline, variant] = await Promise.all([read('data/run.json'), read('data/deepseek/run.json', true)]);
     const left = await experiment('data/', LUNA, baseline);
@@ -382,24 +384,23 @@ export async function mountComparison() {
     } else {
       status.textContent = 'DeepSeek V4.1 Flash 실행 결과가 아직 없습니다.';
     }
+    if (right && baseline.gpu && baseline.gpu === variant.gpu) {
+      const gpu = baseline.gpu.replace(/^NVIDIA GeForce /, '');
+      document.getElementById('results-scope').textContent =
+        `두 실행은 ${gpu}에서 FunGraph3D 0kitchen/video0의 같은 RGB 프레임 ${baseline.frames_processed}장을 처리했습니다.`;
+    }
+    if (!Number.isFinite(baseline.accuracy?.node_recall_at_3) &&
+        !Number.isFinite(right?.run.accuracy?.node_recall_at_3)) {
+      document.getElementById('results-context').textContent = '이 영상 구간의 노드 Recall은 측정하지 않았습니다.';
+    }
     if (right) {
       selector.querySelectorAll('a')[1].hidden = false;
       status.hidden = true;
-      const links = el('div', null, 'run-selector');
-      links.append(runLink(left), runLink(right));
-      content.append(links);
       document.getElementById('result-deepseek-fps').textContent = number(right.run.fps, 3);
       document.getElementById('result-deepseek-recall').textContent = number(right.run.accuracy?.node_recall_at_3, 2);
       document.getElementById('result-deepseek-ate').textContent = number(right.run.accuracy?.ate_rmse_mm, 2);
-      if (selectedRun === 'deepseek') {
-        const video = document.getElementById('demo-video');
-        video.poster = imageURL(right, right.run.frames[37].url);
-        video.src = right.base + 'demo.mp4';
-        video.setAttribute('aria-label', DEEPSEEK + ' 실행 데모');
-        document.getElementById('demo-caption').textContent = DEEPSEEK + ' · FunGraph3D 0kitchen/video0';
-      }
     }
-    const rows = fields.map(([label, readValue, digits]) => {
+    const rows = fields => fields.map(([label, readValue, digits]) => {
       const format = x => {
         const value = readValue(x);
         return typeof value === 'string' ? value : number(value, digits);
@@ -407,18 +408,27 @@ export async function mountComparison() {
       return [label, format(left), right ? format(right) : '—'];
     });
     const timing = right?.run.llm?.cache_mode === 'reused'
-      ? 'DeepSeek FPS는 GPU 메모리 부족으로 중단된 실행의 응답을 재사용한 값입니다. 캐시를 준비한 시간은 제외되므로 Luna와 모델 속도를 직접 비교할 수 없습니다. '
-      : 'FPS에는 API 응답 대기와 SAM3 마스크 저장 시간이 포함됩니다. ';
-    const method = el('p', timing + 'Recall은 이 시퀀스에서 평가하지 않았습니다. 노드·관계 건수는 시스템 출력이며 정답률을 뜻하지 않습니다.', 'project-caption');
-    const performanceFields = 13;
-    content.append(table('실행 성능과 자세 정확도', rows.slice(0, performanceFields)), method);
-    if (right) content.append(videos(left, right), pairedViewers(left, right));
+      ? 'DeepSeek는 이전 응답을 재사용했습니다. 표의 FPS는 캐시 준비 시간을 제외합니다.'
+      : '';
+    const lunaTiming = baseline.llm?.cache_mode === 'cold' ? 'Luna는 빈 캐시로 실행했습니다.' : '';
+    document.getElementById('timing-context').textContent = [lunaTiming, timing].filter(Boolean).join(' ');
+    const method = el('p', timing
+      ? 'DeepSeek의 캐시는 GPU 메모리 부족으로 중단된 실행에서 가져왔습니다. FPS에는 SAM3 마스크 저장 시간이 포함됩니다.'
+      : 'FPS에는 API 응답 대기와 SAM3 마스크 저장 시간이 포함됩니다.', 'project-caption');
+    const graphLink = el('a', '3D 그래프에서 보기', 'compare-graph-link');
+    graphLink.href = '#run';
     content.append(
-      disclosure('같은 프레임의 2D 관측·추론·루프 비교', frameBrowser(left, right)),
-      disclosure('인식·그래프·루프·API 집계', table('집계 지표', rows.slice(performanceFields))),
-      disclosure('SAM3 검출 라벨별 집계', countsTable('라벨', new Map(Object.entries(left.summary.sam3.labels)), right && new Map(Object.entries(right.summary.sam3.labels)))),
+      table('그래프 출력', rows(graphFields)),
+      el('p', '노드와 연결은 시스템이 추정한 결과입니다. 실제 조작 성공 여부는 평가하지 않았습니다.', 'project-caption'),
+      graphLink,
+      visualComparison(left, right),
+    );
+    document.getElementById('comparison-details').append(
+      disclosure('실행 성능과 자세 오차', table('실행 지표', rows(performanceFields)), method),
+      disclosure('인식·그래프·루프·API 집계', table('집계 지표', rows(detailFields))),
+      disclosure('SAM3 라벨별 검출 수', countsTable('라벨', new Map(Object.entries(left.summary.sam3.labels)), right && new Map(Object.entries(right.summary.sam3.labels)))),
       disclosure('장면 사전과 3D 그래프 비교',
-        el('p', '노드 ID는 실행마다 따로 부여됩니다. 아래 집계는 O/C/U 역할, 라벨, 관계 문구를 기준으로 읽으세요.', 'project-caption'),
+        el('p', '실행마다 노드 ID가 달라 역할, 라벨, 관계 문구로 집계합니다.', 'project-caption'),
         countsTable('장면 사전 물체', tally(left.inference.atlas_objects), right && tally(right.inference.atlas_objects)),
         countsTable('장면 사전 O/C/U 관계', localTargets(left.inference.objects, left.inference.atlas_objects),
           right && localTargets(right.inference.objects, right.inference.atlas_objects)),

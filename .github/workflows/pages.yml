@@ -1,6 +1,13 @@
 name: Deploy GitHub Pages
 
-'on': workflow_dispatch
+'on':
+  push:
+    branches: [main]
+    paths:
+      - 'dist/**'
+      - 'scripts/package-pages.mjs'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
 
 concurrency:
   group: github-pages

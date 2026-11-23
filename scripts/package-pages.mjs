@@ -15,8 +15,8 @@ function packagePages() {
 
   const dist = fileURLToPath(new URL('../dist/', import.meta.url));
   const html = readFileSync(join(dist, 'index.html'), 'utf8');
-  const entry = '<script type="module" src="js/main.js"></script>';
-  if (!html.includes(entry) || html.indexOf(entry) !== html.lastIndexOf(entry)) {
+  const entries = html.match(/<script type="module" src="js\/main\.js(?:\?v=[\w.-]+)?"><\/script>/g);
+  if (entries?.length !== 1) {
     throw new Error('Expected exactly one js/main.js module tag in dist/index.html.');
   }
 
@@ -35,7 +35,7 @@ function packagePages() {
     writeFileSync(join(output, 'pages-config.js'),
       `window.FUNCTIONAL_SLAM_API_URL = ${JSON.stringify(endpoint?.href ?? './api/query')};\n`, { flag: 'wx' });
     writeFileSync(join(output, 'index.html'),
-      html.replace(entry, `<script src="pages-config.js"></script>\n${entry}`));
+      html.replace(entries[0], entry => `<script src="pages-config.js"></script>\n${entry}`));
   } catch (error) {
     rmSync(output, { recursive: true, force: true });
     throw error;
