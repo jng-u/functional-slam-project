@@ -1837,19 +1837,59 @@
         "image": "frame_01000.jpg",
         "translation_error_mm": 9.652825776014474
       }
-    ]
+    ],
+    "graph_recall": {
+      "reference_nodes": 112,
+      "reference_triplets": 76,
+      "nodes": {
+        "overall": {
+          "r3": 34.82142857142857,
+          "r10": 56.25
+        },
+        "objects": {
+          "r3": 48.4375,
+          "r10": 56.25
+        },
+        "interaction_elements": {
+          "r3": 16.666666666666668,
+          "r10": 56.25
+        }
+      },
+      "triplets": {
+        "overall": {
+          "r5": 10.526315789473685,
+          "r10": 26.31578947368421
+        },
+        "node_association": {
+          "r5": 10.526315789473685,
+          "r10": 28.94736842105263
+        },
+        "edge_prediction": {
+          "r5": 100.0,
+          "r10": 90.9090909090909
+        }
+      }
+    }
   },
   "accuracy_note": "Only metrics evaluated against the reference for this sequence are reported.",
   "api_usage": {
     "successful_responses": 6,
     "prompt_tokens": 14876,
     "completion_tokens": 3046,
-    "total_tokens": 17922
+    "total_tokens": 17922,
+    "cached_tokens": 0,
+    "list_cost_usd": 0.004059,
+    "allowance_usd": 0.0024354,
+    "extra_cost_usd": 0.0
   },
   "reused_api_usage": {
     "successful_responses": 96,
     "prompt_tokens": 233946,
     "completion_tokens": 51445,
-    "total_tokens": 285391
+    "total_tokens": 285391,
+    "cached_tokens": 0,
+    "list_cost_usd": 0.0749961,
+    "allowance_usd": 0.04499766,
+    "extra_cost_usd": 0.0
   }
 }

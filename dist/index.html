@@ -61,19 +61,45 @@
         <thead><tr><th scope="col">지표</th><th scope="col">논문 보고</th><th scope="col">GPT-6 Luna</th><th scope="col">DeepSeek V4.1 Flash</th></tr></thead>
         <tbody>
           <tr><th scope="row">처리 속도 (FPS)</th><td>0.38</td><td id="result-fps">—</td><td id="result-deepseek-fps">—</td></tr>
-          <tr><th scope="row">노드 Recall@3 (%)</th><td>64.55</td><td id="result-recall">—</td><td id="result-deepseek-recall">—</td></tr>
+          <tr data-graph-metric="nodes.overall.r3"><th scope="row">전체 노드 R@3 (%)</th><td>64.55</td><td>미측정</td><td>미측정</td></tr>
+          <tr data-graph-metric="nodes.overall.r10"><th scope="row">전체 노드 R@10 (%)</th><td>67.14</td><td>미측정</td><td>미측정</td></tr>
+          <tr data-graph-metric="triplets.overall.r5"><th scope="row">전체 삼중항 R@5 (%)</th><td>41.10</td><td>미측정</td><td>미측정</td></tr>
+          <tr data-graph-metric="triplets.overall.r10"><th scope="row">전체 삼중항 R@10 (%)</th><td>43.84</td><td>미측정</td><td>미측정</td></tr>
           <tr><th scope="row">ATE RMSE (mm)</th><td>16.5</td><td id="result-ate">—</td><td id="result-deepseek-ate">—</td></tr>
+          <tr><th scope="row">LLM 토큰 비용 · 정가 환산</th><td>—</td><td id="result-token-cost">—</td><td id="result-deepseek-token-cost">—</td></tr>
         </tbody>
       </table>
     </div>
     <div class="result-notes">
-      <p id="paper-context">논문의 Recall과 ATE는 FunGraph3D 18개 시퀀스 기준이며, FPS는 RTX 3090에서 측정했습니다. <a href="https://arxiv.org/html/2609.07497v1#S4.SS4">논문 표 3·4</a></p>
+      <p id="paper-context">R은 재현율입니다. 논문의 재현율과 ATE는 FunGraph3D 18개 시퀀스 기준이며, FPS는 RTX 3090에서 측정했습니다. <a href="https://arxiv.org/html/2609.07497v1#S4.T1">논문 표 1·2</a> · <a href="https://arxiv.org/html/2609.07497v1#S4.T3">논문 표 3·4</a></p>
       <p id="results-context" role="status"></p>
       <p id="timing-context"></p>
       <p id="accuracy-context"></p>
+      <p id="graph-recall-method" hidden>재현율은 <a href="https://huggingface.co/datasets/xg-123/HHOpenFunGraph/tree/bfc9d7f9f4ff320380c82b5ab061a526b69b7f30/compat/FunGraph3D">HHOpenFunGraph 확장판 정답</a> 기준입니다. 레이저 스캔을 101프레임에 투영해 보이는 노드를 골랐고, 양쪽 노드가 모두 포함된 삼중항을 평가했습니다. 예측 그래프는 Sim(3)으로 정렬하고 3D 박스 겹침과 CLIP·BERT 순위로 채점했습니다.</p>
+      <p>토큰 비용은 USD로 표시합니다. Luna는 OpenAI Standard 요율과 30분 캐시 쓰기 요율로 추정했습니다. DeepSeek는 새 응답과 재사용한 응답의 OpenCode Go 정가를 합산했습니다. 구독 한도 차감과 추가 청구는 아래 API 집계에서 확인할 수 있습니다. <a href="https://developers.openai.com/api/docs/models/gpt-6-luna">OpenAI 공식 요금</a> · <a href="https://opencode.ai/docs/console/go/">OpenCode Go 공식 요금</a></p>
     </div>
     <section id="compare" class="run-comparison" aria-labelledby="compare-title">
       <h3 id="compare-title">두 실행 비교</h3>
+      <details class="project-detail">
+        <summary>그래프 재현율 세부 지표</summary>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="논문과 재현 실행의 그래프 재현율 세부 비교">
+          <table class="result-table">
+            <thead><tr><th scope="col">지표</th><th scope="col">논문 보고</th><th scope="col">GPT-6 Luna</th><th scope="col">DeepSeek V4.1 Flash</th></tr></thead>
+            <tbody>
+              <tr data-graph-metric="nodes.objects.r3"><th scope="row">물체 R@3 (%)</th><td>63.58</td><td>미측정</td><td>미측정</td></tr>
+              <tr data-graph-metric="nodes.objects.r10"><th scope="row">물체 R@10 (%)</th><td>68.87</td><td>미측정</td><td>미측정</td></tr>
+              <tr data-graph-metric="nodes.interaction_elements.r3"><th scope="row">조작 부위 R@3 (%)</th><td>65.09</td><td>미측정</td><td>미측정</td></tr>
+              <tr data-graph-metric="nodes.interaction_elements.r10"><th scope="row">조작 부위 R@10 (%)</th><td>66.18</td><td>미측정</td><td>미측정</td></tr>
+              <tr data-graph-metric="triplets.node_association.r5"><th scope="row">노드 연관 R@5 (%)</th><td>42.12</td><td>미측정</td><td>미측정</td></tr>
+              <tr data-graph-metric="triplets.node_association.r10"><th scope="row">노드 연관 R@10 (%)</th><td>44.86</td><td>미측정</td><td>미측정</td></tr>
+              <tr data-graph-metric="triplets.edge_prediction.r5"><th scope="row">연결 예측 R@5 (%)</th><td>97.56</td><td>미측정</td><td>미측정</td></tr>
+              <tr data-graph-metric="triplets.edge_prediction.r10"><th scope="row">연결 예측 R@10 (%)</th><td>97.71</td><td>미측정</td><td>미측정</td></tr>
+              <tr data-graph-metric="reference_nodes"><th scope="row">평가 대상 GT 노드 수</th><td>—</td><td>미측정</td><td>미측정</td></tr>
+              <tr data-graph-metric="reference_triplets"><th scope="row">평가 대상 GT 삼중항 수</th><td>—</td><td>미측정</td><td>미측정</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
       <p id="compare-status" class="run-note" role="status">비교 데이터를 불러오는 중입니다.</p>
       <div id="compare-content"></div>
     </section>
@@ -394,6 +420,6 @@ bash scripts/run_functional_local.sh</code></pre>
 <footer class="foot">
   <p>공식 구현은 <a href="https://github.com/Hbelief1998/Functional-SLAM-CoRL_2026/blob/f0426faabdc38c7973ca4c2027c170acfe3e4e8b/LICENSE">CC BY-NC-SA 4.0</a>을 따릅니다. 3D 뷰어는 three.js (MIT)를 사용합니다.</p>
 </footer>
-<script type="module" src="js/main.js?v=3"></script>
+<script type="module" src="js/main.js?v=5"></script>
 </body>
 </html>

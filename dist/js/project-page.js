@@ -1,4 +1,4 @@
-import {mountComparison} from './comparison.js?v=2';
+import {mountComparison, renderGraphRecall} from './comparison.js?v=4';
 
 const viewerOnly = new URLSearchParams(location.search).get('view') === '3d';
 if (viewerOnly) document.body.classList.add('viewer-only');
@@ -42,7 +42,7 @@ export function renderResults(run) {
     document.getElementById(id).textContent = Number.isFinite(value) ? value.toFixed(digits) : '미측정';
   };
   metric('result-fps', run.fps, 3);
-  metric('result-recall', run.accuracy?.node_recall_at_3, 2);
+  renderGraphRecall(run);
   metric('result-ate', run.accuracy?.ate_rmse_mm, 2);
   const accuracy = run.accuracy;
   if (Number.isFinite(accuracy?.sim3?.ate_rmse_mm)) {

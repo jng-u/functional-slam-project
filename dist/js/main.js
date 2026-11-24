@@ -1,6 +1,6 @@
 import {mountAnchorDemo} from './anchor.js';
 import {mountPosteriorDemo} from './posterior-ui.js';
-import {renderResults} from './project-page.js?v=2';
+import {renderResults} from './project-page.js?v=4';
 
 const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };

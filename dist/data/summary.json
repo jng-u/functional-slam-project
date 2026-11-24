@@ -2173,13 +2173,48 @@
         "image": "frame_01000.jpg",
         "translation_error_mm": 9.251832433387786
       }
-    ]
+    ],
+    "graph_recall": {
+      "reference_nodes": 112,
+      "reference_triplets": 76,
+      "nodes": {
+        "overall": {
+          "r3": 44.642857142857146,
+          "r10": 73.21428571428571
+        },
+        "objects": {
+          "r3": 64.0625,
+          "r10": 84.375
+        },
+        "interaction_elements": {
+          "r3": 18.75,
+          "r10": 58.333333333333336
+        }
+      },
+      "triplets": {
+        "overall": {
+          "r5": 7.894736842105263,
+          "r10": 30.263157894736842
+        },
+        "node_association": {
+          "r5": 11.842105263157896,
+          "r10": 30.263157894736842
+        },
+        "edge_prediction": {
+          "r5": 66.66666666666667,
+          "r10": 100.0
+        }
+      }
+    }
   },
   "accuracy_note": "Only metrics evaluated against the reference for this sequence are reported.",
   "api_usage": {
     "successful_responses": 102,
     "prompt_tokens": 241097,
     "completion_tokens": 40325,
-    "total_tokens": 281422
+    "total_tokens": 281422,
+    "cached_tokens": 0,
+    "cache_write_tokens": 239696,
+    "list_cost_usd": 0.0502646
   }
 }

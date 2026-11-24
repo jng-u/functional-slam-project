@@ -27,6 +27,31 @@ const number = (value, digits = 0) => Number.isFinite(value)
   ? value.toLocaleString('ko-KR', {minimumFractionDigits: digits, maximumFractionDigits: digits})
   : '미측정';
 
+const usd = value => Number.isFinite(value) ? '$' + value.toFixed(5) : '—';
+
+function combinedUsage(summary, field) {
+  const groups = [summary.api_usage, summary.reused_api_usage].filter(Boolean);
+  if (!groups.length || !groups.every(group => Number.isFinite(group[field]))) return undefined;
+  return groups.reduce((total, group) => total + group[field], 0);
+}
+
+export function renderGraphRecall(run, model = LUNA) {
+  const column = model === DEEPSEEK ? 3 : 2;
+  const accuracy = run.accuracy;
+  let measured = false;
+  for (const row of document.querySelectorAll('#results [data-graph-metric]')) {
+    const path = row.dataset.graphMetric;
+    const isCount = path.startsWith('reference_');
+    const value = path.split('.').reduce((entry, key) => entry?.[key], accuracy?.graph_recall);
+    if (!isCount && Number.isFinite(value)) measured = true;
+    const displayValue = path === 'nodes.overall.r3' && !Number.isFinite(value)
+      ? accuracy?.node_recall_at_3
+      : value;
+    row.cells[column].textContent = number(displayValue, isCount ? 0 : 2);
+  }
+  if (measured) document.getElementById('graph-recall-method').hidden = false;
+}
+
 const displayedEdges = (x, kind) => x.graph.edges.filter(e => e.kind === kind).length;
 
 const graphFields = [
@@ -52,7 +77,6 @@ const performanceFields = [
   ['ATE RMSE · Sim(3) (mm)', x => x.run.accuracy?.sim3?.ate_rmse_mm, 2],
   ['ATE RMSE · SE(3) (mm)', x => x.run.accuracy?.se3?.ate_rmse_mm, 2],
   ['Sim(3) 정렬 스케일', x => x.run.accuracy?.sim3?.scale, 4],
-  ['노드 Recall@3 (%)', x => x.run.accuracy?.node_recall_at_3, 2],
 ];
 
 const detailFields = [
@@ -95,8 +119,13 @@ const detailFields = [
   ['새 응답의 입력 토큰', x => x.summary.api_usage?.prompt_tokens],
   ['새 응답의 출력 토큰', x => x.summary.api_usage?.completion_tokens],
   ['새 응답의 전체 토큰', x => x.summary.api_usage?.total_tokens],
+  ['새 응답의 캐시 쓰기 토큰', x => x.summary.api_usage?.cache_write_tokens],
+  ['새 응답의 토큰 정가', x => usd(x.summary.api_usage?.list_cost_usd)],
   ['캐시 생성에 쓴 응답 수', x => x.summary.reused_api_usage?.successful_responses],
   ['캐시 생성에 쓴 토큰 수', x => x.summary.reused_api_usage?.total_tokens],
+  ['캐시 생성에 쓴 응답의 토큰 정가', x => usd(x.summary.reused_api_usage?.list_cost_usd)],
+  ['OpenCode Go 구독 한도 차감액', x => usd(combinedUsage(x.summary, 'allowance_usd'))],
+  ['OpenCode Go 추가 청구액 · 기록 기준', x => usd(combinedUsage(x.summary, 'extra_cost_usd'))],
 ];
 
 function table(label, rows) {
@@ -389,17 +418,15 @@ export async function mountComparison() {
       document.getElementById('results-scope').textContent =
         `두 실행은 ${gpu}에서 FunGraph3D 0kitchen/video0의 같은 RGB 프레임 ${baseline.frames_processed}장을 처리했습니다.`;
     }
-    if (!Number.isFinite(baseline.accuracy?.node_recall_at_3) &&
-        !Number.isFinite(right?.run.accuracy?.node_recall_at_3)) {
-      document.getElementById('results-context').textContent = '이 영상 구간의 노드 Recall은 측정하지 않았습니다.';
-    }
     if (right) {
       selector.querySelectorAll('a')[1].hidden = false;
       status.hidden = true;
       document.getElementById('result-deepseek-fps').textContent = number(right.run.fps, 3);
-      document.getElementById('result-deepseek-recall').textContent = number(right.run.accuracy?.node_recall_at_3, 2);
+      renderGraphRecall(right.run, DEEPSEEK);
       document.getElementById('result-deepseek-ate').textContent = number(right.run.accuracy?.ate_rmse_mm, 2);
+      document.getElementById('result-deepseek-token-cost').textContent = usd(combinedUsage(right.summary, 'list_cost_usd'));
     }
+    document.getElementById('result-token-cost').textContent = usd(combinedUsage(left.summary, 'list_cost_usd'));
     const rows = fields => fields.map(([label, readValue, digits]) => {
       const format = x => {
         const value = readValue(x);
